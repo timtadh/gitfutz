@@ -1,0 +1,3 @@
+source env/bin/activate
+export LIBGIT2=`pwd`/cdeps
+

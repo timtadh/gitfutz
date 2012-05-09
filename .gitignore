@@ -1,5 +1,11 @@
 *.py[co]
 
+# virtualenv
+env
+
+# c dependencies
+cdeps
+
 # Packages
 *.egg
 *.egg-info
