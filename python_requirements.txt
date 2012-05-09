@@ -1,0 +1,1 @@
+-e git+https://github.com/libgit2/pygit2.git@2bbf62f50a0a25efb1592ebbb83d741fad8e29dd#egg=pygit2-dev
