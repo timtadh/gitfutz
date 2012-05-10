@@ -131,6 +131,38 @@ def commits(repo):
   for commit in repo.walk(head.oid, pygit2.GIT_SORT_REVERSE):
     output(commit.hex, commit.author.email, [p.hex for p in commit.parents])
 
+@command
+def merges(repo):
+  head = repo.lookup_reference('HEAD').resolve()
+  total_merges = 0
+  merger = dict()
+  merge_from = dict()
+  for commit in repo.walk(head.oid, pygit2.GIT_SORT_REVERSE):
+    if len(commit.parents) < 2: continue
+    total_merges += 1
+    email = commit.author.name.encode('utf8')
+    merger[email] = merger.get(email, 0) + 1
+    mfrom = [p.author.name.encode('utf8') for p in commit.parents if email !=
+        p.author.name.encode('utf8')]
+    for pe in mfrom:
+      merge_from[email] = merge_from.get(email, dict())
+      merge_from[email][pe] = merge_from[email].get(pe, 0) + 1
+    output(
+      commit.hex, email, mfrom
+    )
+  output()
+  for email, count in merger.iteritems():
+    output(email, count, float(count)/float(total_merges))
+  output()
+  output()
+  outs = list()
+  for email, froms in merge_from.iteritems():
+    for pe, count in froms.iteritems():
+      outs.append((email, pe, count, float(count)/float(total_merges)))
+  outs = sorted(outs, key=lambda x:x[3])
+  output('\n'.join(' '.join(str(col) for col in line) for line in outs))
+
+
 commands = dict((name, attr)
   for name, attr in locals().iteritems()
   if hasattr(attr, 'command') and attr.command == True
