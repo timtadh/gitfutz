@@ -6,6 +6,9 @@ env
 # c dependencies
 cdeps
 
+# swp files
+*.swp
+
 # Packages
 *.egg
 *.egg-info
@@ -31,3 +34,4 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+

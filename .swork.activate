@@ -1,3 +1,4 @@
 source env/bin/activate
 export LIBGIT2=`pwd`/cdeps
+export LD_LIBRARY_PATH=`pwd`/cdeps/lib
 
