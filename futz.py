@@ -9,6 +9,8 @@ import os, sys
 from getopt import getopt, GetoptError
 
 import pygit2
+from tst import TST
+from tst.suffix import SuffixTree
 
 VERSION = 'git master'
 
@@ -161,6 +163,67 @@ def merges(repo):
       outs.append((email, pe, count, float(count)/float(total_merges)))
   outs = sorted(outs, key=lambda x:x[3])
   output('\n'.join(' '.join(str(col) for col in line) for line in outs))
+
+@command
+def index(repo, args):
+
+  def cmd_usage():
+    log("index all commits with extensions given by -x")
+    usage()
+
+  short_opts =  'hx:'
+  long_opts = [
+    'help', 'extension=', 'exclude='
+  ]
+
+  try:
+    opts, args = getopt(args, short_opts, long_opts)
+  except GetoptError, err:
+    log(err)
+    usage(error_codes['option'])
+
+  exts = set()
+  excludes = set()
+  for opt, arg in opts:
+    if opt in ('-h', '--help'):
+      cmd_usage()
+    elif opt in ('-x', '--extension'):
+      exts.add(arg)
+    elif opt in ('--exclude',):
+      excludes.add(arg)
+  log(exts)
+ 
+  index = SuffixTree()
+  def add(name, obj, commitid, objid):
+    if os.path.splitext(name)[1][1:] not in exts: return
+    if name in excludes: return
+    log('------->', name)
+    data = obj.data.replace('\r', '')
+    for line in obj.data.split('\n'):
+      objs = index.get(line, set())
+      notin = not bool(objs)
+      objs.add((commitid, objid))
+      if notin: index[line] = objs
+
+  def walk(tree, i=2):
+    for entry in tree:
+      log(' '*i, entry.name.encode('utf8'))
+      eobj = entry.to_object()
+      if isinstance(eobj, pygit2.Tree): walk(eobj, i+2)
+      else: add(entry.name.encode('utf8'), eobj, commit.hex, entry.hex)
+
+  head = repo.lookup_reference('HEAD').resolve()
+  for commit in repo.walk(head.oid, pygit2.GIT_SORT_REVERSE):
+    log(commit.hex, commit.tree)
+    walk(commit.tree)
+
+  while True:
+    query = raw_input('> ')
+    if not query: break
+    for key, objs in index.find(query):
+      output(key)
+      for commitid, objid in objs:
+        output(' '*4, commitid, objid)
 
 
 commands = dict((name, attr)
