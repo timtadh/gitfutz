@@ -19,6 +19,10 @@ get the code
     $ git clone https://timtadh@github.com/timtadh/gitfutz.git
     $ cd gitfutz
 
+create a virtualenv
+
+    $ virtualenv --no-site-packages env
+
 add the project to swork
 
     $ sw add gitfutz
