@@ -12,7 +12,7 @@ from tst import TST
 from tst.suffix import SuffixTree
 
 import gitfutz, gitfutz.fulltext
-from gitfutz import io
+from gitfutz import io, genast
 from gitfutz.io import log, output
 
 VERSION = 'git master'
@@ -148,6 +148,10 @@ def index(repo, args):
       log(key)
       for cid, oid in results: log(' '*4, cid, oid)
 
+@command
+def pyast(repo, args):
+  prog = io.read_file_or_die(args[0])
+  output(genast.python(prog).dotty())
 
 commands = dict((name, attr)
   for name, attr in locals().iteritems()

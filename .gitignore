@@ -9,3 +9,6 @@ cdeps
 # swp files
 *.swp
 
+# png files
+*.png
+
