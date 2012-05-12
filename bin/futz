@@ -11,7 +11,7 @@ import pygit2
 from tst import TST
 from tst.suffix import SuffixTree
 
-import gitfutz
+import gitfutz, gitfutz.fulltext
 from gitfutz import io
 from gitfutz.io import log, output
 
@@ -139,39 +139,14 @@ def index(repo, args):
       exts.add(arg)
     elif opt in ('--exclude',):
       excludes.add(arg)
-  log(exts)
- 
-  index = SuffixTree()
-  def add(name, obj, commitid, objid):
-    if os.path.splitext(name)[1][1:] not in exts: return
-    if name in excludes: return
-    log('------->', name)
-    data = obj.data.replace('\r', '')
-    for line in obj.data.split('\n'):
-      objs = index.get(line, set())
-      notin = not bool(objs)
-      objs.add((commitid, objid))
-      if notin: index[line] = objs
-
-  def walk(tree, i=2):
-    for entry in tree:
-      log(' '*i, entry.name.encode('utf8'))
-      eobj = entry.to_object()
-      if isinstance(eobj, pygit2.Tree): walk(eobj, i+2)
-      else: add(entry.name.encode('utf8'), eobj, commit.hex, entry.hex)
-
-  head = repo.lookup_reference('HEAD').resolve()
-  for commit in repo.walk(head.oid, pygit2.GIT_SORT_REVERSE):
-    log(commit.hex, commit.tree)
-    walk(commit.tree)
-
+  
+  index = gitfutz.fulltext.index(repo, exts, excludes)
   while True:
     query = raw_input('> ')
     if not query: break
-    for key, objs in index.find(query):
-      output(key)
-      for commitid, objid in objs:
-        output(' '*4, commitid, objid)
+    for key, results in gitfutz.fulltext.query_index(index, query):
+      log(key)
+      for cid, oid in results: log(' '*4, cid, oid)
 
 
 commands = dict((name, attr)
