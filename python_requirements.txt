@@ -2,4 +2,5 @@
 -e git://github.com/timtadh/tst.git#egg=tst-dev
 -e git://github.com/timtadh/betterast.git#egg=betterast
 -e git://github.com/timtadh/zhang-shasha.git#egg=zss
+-e hg+https://code.google.com/p/py-editdist/#egg=editdist
 
