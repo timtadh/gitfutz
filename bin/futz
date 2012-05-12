@@ -12,6 +12,8 @@ import pygit2
 from tst import TST
 from tst.suffix import SuffixTree
 
+import gitfutz
+
 VERSION = 'git master'
 
 error_codes = {
