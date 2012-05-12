@@ -1,4 +1,5 @@
 -e git+https://github.com/libgit2/pygit2.git#egg=pygit2-dev
 -e git://github.com/timtadh/tst.git#egg=tst-dev
 -e git://github.com/timtadh/betterast.git#egg=betterast
+-e git://github.com/timtadh/zhang-shasha.git#egg=zss
 
