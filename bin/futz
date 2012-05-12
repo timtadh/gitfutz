@@ -4,7 +4,6 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-
 import os, sys
 from getopt import getopt, GetoptError
 
@@ -13,6 +12,7 @@ from tst import TST
 from tst.suffix import SuffixTree
 
 import gitfutz
+from gitfutz.io import log, output
 
 VERSION = 'git master'
 
@@ -52,20 +52,6 @@ Specs
 '''
 
 extended_message = ''
-
-def log(*msgs):
-  '''Log a message to the user'''
-  for msg in msgs:
-    print >>sys.stderr, str(msg),
-  print >>sys.stderr
-  sys.stderr.flush()
-
-def output(*msgs):
-  '''Output a piece of data (suitable for piping to others).'''
-  for msg in msgs:
-    print >>sys.stdout, str(msg),
-  print >>sys.stdout
-  sys.stdout.flush()
 
 def version():
   '''Print version and exits'''
