@@ -6,6 +6,24 @@
 
 import os, sys
 
+error_codes = {
+    'usage':1,
+    'file_not_found':2,
+    'option':3,
+    'args':4,
+    'version':5,
+    'bad_bool':6,
+    'no_args':7,
+    'bad_module':9,
+    'bad_file_read':10,
+    'file_instead_of_dir':11,
+}
+
+short_usage_message = None
+usage_message = None
+extended_message = None
+
+
 def log(*msgs):
   '''Log a message to the user
   @varargs *msgs : a sequence of object to print'''
@@ -21,6 +39,17 @@ def output(*msgs):
     print >>sys.stdout, str(msg),
   print >>sys.stdout
   sys.stdout.flush()
+
+def usage(code=None):
+  '''Prints the usage and exits with an error code specified by code. If code
+  is not given it exits with error_codes['usage']'''
+  log(short_usage_message)
+  if code is None or code < 2:
+    log(usage_message)
+  if code is None:
+    log(extended_message)
+    code = error_codes['usage']
+  sys.exit(code)
 
 def assert_file_exists(path):
   '''checks if the file exists. If it doesn't causes the program to exit.

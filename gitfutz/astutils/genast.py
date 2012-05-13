@@ -18,6 +18,7 @@ def python(text):
     node = Node(name)
     for attr_name, attrs in ast.iter_fields(pynode):
       if attrs is None: continue
+      if hasattr(attrs, '__len__') and len(attrs) == 0: continue
       attr_node = Node(attr_name)
       node.addkid(attr_node)
       if hasattr(attrs, '__iter__'):
