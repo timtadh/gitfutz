@@ -14,11 +14,12 @@ from tst.suffix import SuffixTree
 import gitfutz, gitfutz.fulltext
 from gitfutz import io
 from gitfutz.astutils import genast
+from gitfutz.astutils.tools import compare_asts
 from gitfutz.io import log, output
 
 VERSION = 'git master'
 
-io.error_codes.update({}) ## put new error code here
+io.error_codes.update({}) ## put new error codes here
 
 io.short_usage_message = \
 '''usage: gitfutz -r <repo> [sub command]'''
@@ -47,7 +48,7 @@ io.extended_message = ''
 def version():
   '''Print version and exits'''
   log('fuzzbuzz version :', VERSION)
-  sys.exit(error_codes['version'])
+  sys.exit(io.error_codes['version'])
 
 def command(f):
   '''A decorator to mark a function as shell sub-command.'''
@@ -107,7 +108,7 @@ def index(repo, args):
     opts, args = getopt(args, short_opts, long_opts)
   except GetoptError, err:
     log(err)
-    io.usage(error_codes['option'])
+    io.usage(io.error_codes['option'])
 
   exts = set()
   excludes = set()
@@ -132,6 +133,12 @@ def pyast(repo, args):
   prog = io.read_file_or_die(args[0])
   output(genast.python(prog).dotty())
 
+@command
+def cmpasts(repo, args):
+  p1 = genast.python(io.read_file_or_die(args[0]))
+  p2 = genast.python(io.read_file_or_die(args[1]))
+  output(compare_asts(p1, p2))
+
 commands = dict((name, attr)
   for name, attr in locals().iteritems()
   if hasattr(attr, 'command') and attr.command == True
@@ -148,7 +155,7 @@ def main(args):
     opts, args = getopt(args, short_opts, long_opts)
   except GetoptError, err:
     log(err)
-    io.usage(error_codes['option'])
+    io.usage(io.error_codes['option'])
 
   repo = None
   for opt, arg in opts:
@@ -161,16 +168,16 @@ def main(args):
 
   if len(args) == 0:
     log('must supply a subcommand')
-    io.usage(error_codes['option'])
+    io.usage(io.error_codes['option'])
   
   sub_cmd = args[0]
   if sub_cmd not in commands:
     log('command %s is not available' % sub_cmd)
-    io.usage(error_codes['option'])
+    io.usage(io.error_codes['option'])
 
   if repo is None:
     log('must supply a repository to operate on')
-    io.usage(error_codes['option'])
+    io.usage(io.error_codes['option'])
 
   cmd = commands[sub_cmd]
   if cmd.func_code.co_argcount == 2:

@@ -26,11 +26,11 @@ def python(text):
           if issubclass(attr.__class__, ast.AST):
             attr_node.addkid(construct(attr))
           else:
-            attr_node.addkid(attr)
+            attr_node.addkid(Node(str(attr)))
       elif issubclass(attrs.__class__, ast.AST):
         attr_node.addkid(construct(attrs))
       else:
-        attr_node.addkid(attrs)
+        attr_node.addkid(Node(str(attrs)))
     return node
 
   pyast = ast.parse(text)
