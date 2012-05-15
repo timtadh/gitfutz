@@ -8,6 +8,7 @@ import os, sys
 import ast
 
 from betterast import Node
+from pygram import Profile
 
 from gitfutz.io import log, output
 
@@ -34,5 +35,6 @@ def python(text):
     return node
 
   pyast = ast.parse(text)
-  return construct(pyast)
+  newast = construct(pyast)
+  return newast, Profile(newast)
 

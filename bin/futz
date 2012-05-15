@@ -131,13 +131,42 @@ def index(repo, args):
 @command
 def pyast(repo, args):
   prog = io.read_file_or_die(args[0])
-  output(genast.python(prog).dotty())
+  ast, profile = genast.python(prog)
+  output(ast.dotty())
 
 @command
 def cmpasts(repo, args):
-  p1 = genast.python(io.read_file_or_die(args[0]))
-  p2 = genast.python(io.read_file_or_die(args[1]))
-  output(compare_asts(p1, p2))
+  p1_ast, p1_profile = genast.python(io.read_file_or_die(args[0]))
+  p2_ast, p2_profile = genast.python(io.read_file_or_die(args[1]))
+  output(p1_profile.edit_distance(p2_profile))
+
+@command
+def compare_ids(repo, args):
+  id1, id2 = args[0], args[1]
+
+  def walk(files, tree, parents):
+    for entry in tree:
+      name = entry.name.encode('utf8')
+      eobj = entry.to_object()
+      if isinstance(eobj, pygit2.Tree): walk(files, eobj, parents+[name])
+      else:
+        data = eobj.data.replace('\r', '')
+        if (os.path.splitext(name)[1] == '.py' or 'python' in
+            data.split('\n')[0]):
+          files[os.path.join(*(parents+[name]))] = data
+
+  files1 = dict()
+  files2 = dict()
+  print repo.listall_references()
+
+  walk(files1, repo[repo.lookup_reference(id1).resolve().oid].tree, list())
+  walk(files2, repo[repo.lookup_reference(id2).resolve().oid].tree, list())
+
+  shared = set(files1.keys()) & set(files2.keys())
+  for key in shared:
+    p1_ast, p1_profile = genast.python(files1[key])
+    p2_ast, p2_profile = genast.python(files2[key])
+    output(key, p1_profile.edit_distance(p2_profile))
 
 commands = dict((name, attr)
   for name, attr in locals().iteritems()

@@ -15,4 +15,3 @@ from gitfutz.io import log, output
 
 def compare_asts(a, b): return treedist(a, b)
 
-
