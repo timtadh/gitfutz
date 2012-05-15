@@ -168,6 +168,39 @@ def compare_ids(repo, args):
     p2_ast, p2_profile = genast.python(files2[key])
     output(key, p1_profile.edit_distance(p2_profile))
 
+@command
+def compare(repo):
+  
+  def walk(files, tree, parents):
+    for entry in tree:
+      name = entry.name.encode('utf8')
+      eobj = entry.to_object()
+      if isinstance(eobj, pygit2.Tree): walk(files, eobj, parents+[name])
+      else:
+        data = eobj.data.replace('\r', '')
+        line = data.split('\n', 1)[0].strip()
+        if (os.path.splitext(name)[1] == '.py' or 
+            ('python' in line and line[0] == '#')):
+          files[os.path.join(*(parents+[name]))] = data
+
+  head = repo.lookup_reference('HEAD').resolve()
+  sort_mode = pygit2.GIT_SORT_REVERSE|pygit2.GIT_SORT_TOPOLOGICAL
+  for commit in repo.walk(head.oid, sort_mode):
+    files1 = dict()
+    walk(files1, commit.tree, list())
+    for parent in commit.parents:
+      output(commit.hex, parent.hex)
+      files2 = dict()
+      walk(files2, parent.tree, list())
+      shared = set(files1.keys()) & set(files2.keys())
+      for key in shared:
+        try:
+          p1_ast, p1_profile = genast.python(files1[key])
+          p2_ast, p2_profile = genast.python(files2[key])
+        except SyntaxError:
+          continue
+        output(' '*4, key, p1_profile.edit_distance(p2_profile))
+
 commands = dict((name, attr)
   for name, attr in locals().iteritems()
   if hasattr(attr, 'command') and attr.command == True
