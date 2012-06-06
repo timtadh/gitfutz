@@ -4,12 +4,16 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-import os, sys
+import os, sys, math
 from getopt import getopt, GetoptError
 
 import pygit2
+import numpy as np
+from editdist import distance as strdist
 from tst import TST
 from tst.suffix import SuffixTree
+import matplotlib.pyplot as plt
+from scipy import stats
 
 import gitfutz, gitfutz.fulltext
 from gitfutz import io
@@ -183,6 +187,8 @@ def compare(repo):
             ('python' in line and line[0] == '#')):
           files[os.path.join(*(parents+[name]))] = data
 
+  dists = list()
+  strdists = list()
   head = repo.lookup_reference('HEAD').resolve()
   sort_mode = pygit2.GIT_SORT_REVERSE|pygit2.GIT_SORT_TOPOLOGICAL
   for commit in repo.walk(head.oid, sort_mode):
@@ -194,12 +200,99 @@ def compare(repo):
       walk(files2, parent.tree, list())
       shared = set(files1.keys()) & set(files2.keys())
       for key in shared:
+        if files1[key] == files2[key]: continue
         try:
           p1_ast, p1_profile = genast.python(files1[key])
           p2_ast, p2_profile = genast.python(files2[key])
         except SyntaxError:
           continue
-        output(' '*4, key, p1_profile.edit_distance(p2_profile))
+        dist = p1_profile.edit_distance(p2_profile) * 100.0
+        sdist = strdist(files1[key], files2[key])
+        dists.append(dist)
+        strdists.append(sdist)
+        output(' '*4, key, dist, sdist)
+  
+  print 'mean:', np.mean(dists), np.mean(strdists)
+  print 'var:', np.var(dists), np.var(strdists)
+  print 'std:', np.std(dists), np.std(strdists)
+
+@command
+def sequence(repo):
+
+  def boxplot(path, labels, *args):
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax.boxplot(args)
+    ax.set_xticklabels(labels)
+    plt.savefig(path, format='png')
+    plt.clf()
+
+  def histplot(path, x):
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    #ax.xaxis.set_label_text(xtext)
+    #ax.yaxis.set_label_text(ytext)
+    ax.hist(sorted(x), bins=max(15, math.sqrt(len(x))))
+    plt.savefig(path, format='png')
+    plt.clf()
+
+  head = repo.lookup_reference('HEAD').resolve()
+  sort_mode = pygit2.GIT_SORT_REVERSE|pygit2.GIT_SORT_TOPOLOGICAL
+  count = 0
+  commiters = dict()
+  for commit in repo.walk(head.oid, sort_mode):
+    count += 1
+    name = commit.author.name.encode('utf8')
+    commiters[name] = commiters.get(name, 0) + 1
+
+
+  counts = tuple(commiters.itervalues())
+  Max = max(counts)
+  counts_nomax = list(counts)
+  counts_nomax.remove(Max)
+  mean = np.mean(counts)
+  stdev = np.std(counts)
+  var = np.var(counts)
+  dist_class = stats.gamma
+  fit = dist_class.fit(counts)
+  dist = dist_class(fit[0], 1, fit[2])
+  sample = dist.rvs(size=len(counts))
+
+  print count
+  print commiters
+  print mean
+  print stdev
+  print fit
+
+  boxplot('boxplot.png', ['counts'], counts)
+  histplot('histogram.png', counts)
+
+  #sample = stats.exponpow.rvs(mean/stdev, scale=stdev, loc=0, size=len(counts))
+  histplot('histogram_expon.png', sample)
+
+  low, high = dist.interval(.33)
+  bottom, _ = dist.interval(.01)
+  low = max(bottom+1, low)
+  high = max(low+1, high)
+
+  bottom = dist.ppf(.75)
+  middle = max(bottom+1, dist.ppf(.90))
+  top = max(middle+1, dist.ppf(.99))
+
+  print top, middle, bottom
+  commiters = sorted(commiters.iteritems(), key=lambda x: x[1])
+
+  for name, count in commiters:
+    if count > top:
+      print name, count, 'high'
+    elif count > middle:
+      print name, count, 'medium'
+    elif count > bottom:
+      print name, count, 'low'
+    elif count > 1:
+      print name, count, 'interloper'
+    else:
+      print name, count, 'one commit wonder'
 
 commands = dict((name, attr)
   for name, attr in locals().iteritems()
