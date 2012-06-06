@@ -253,39 +253,25 @@ def sequence(repo):
   mean = np.mean(counts)
   stdev = np.std(counts)
   var = np.var(counts)
-  dist_class = stats.gamma
-  fit = dist_class.fit(counts)
-  dist = dist_class(fit[0], 1, fit[2])
-  sample = dist.rvs(size=len(counts))
-
+ 
   print count
   print commiters
   print mean
   print stdev
-  print fit
 
-  boxplot('boxplot.png', ['counts'], counts)
   histplot('histogram.png', counts)
+  
+  quants = stats.mstats.mquantiles(counts, [.80, .90, .99])
+  print quants.tolist()
+  print dir(quants)
+  print tuple(quants.tolist())
+  bottom, middle, top = tuple(quants.tolist())
 
-  #sample = stats.exponpow.rvs(mean/stdev, scale=stdev, loc=0, size=len(counts))
-  histplot('histogram_expon.png', sample)
-
-  low, high = dist.interval(.33)
-  bottom, _ = dist.interval(.01)
-  low = max(bottom+1, low)
-  high = max(low+1, high)
-
-  bottom = dist.ppf(.75)
-  middle = max(bottom+1, dist.ppf(.90))
-  top = max(middle+1, dist.ppf(.99))
-
-  print top, middle, bottom
   commiters = sorted(commiters.iteritems(), key=lambda x: x[1])
-
   for name, count in commiters:
-    if count > top:
+    if count >= top:
       print name, count, 'high'
-    elif count > middle:
+    elif count >= middle:
       print name, count, 'medium'
     elif count > bottom:
       print name, count, 'low'
