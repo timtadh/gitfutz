@@ -5,4 +5,6 @@
 -e hg+https://code.google.com/p/py-editdist/#egg=editdist
 -e git+https://github.com/timtadh/PyGram.git#egg=pygram
 numpy
-
+scikit-learn
+scipy
+matplotlib
