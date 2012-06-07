@@ -14,10 +14,12 @@ from tst import TST
 from tst.suffix import SuffixTree
 import matplotlib.pyplot as plt
 from scipy import stats
+from sklearn import cluster
 
 import gitfutz, gitfutz.fulltext
 from gitfutz import io
 from gitfutz.astutils import genast
+from gitfutz.astutils import tools
 from gitfutz.astutils.tools import compare_asts
 from gitfutz.io import log, output
 
@@ -147,30 +149,11 @@ def cmpasts(repo, args):
 @command
 def compare_ids(repo, args):
   id1, id2 = args[0], args[1]
+  a = repo[repo[repo.lookup_reference(id1).resolve().oid].target]
+  b = repo[repo[repo.lookup_reference(id2).resolve().oid].target]
+  for key, dist in tools.compare_commits(a, b):
+    output(key, dist)
 
-  def walk(files, tree, parents):
-    for entry in tree:
-      name = entry.name.encode('utf8')
-      eobj = entry.to_object()
-      if isinstance(eobj, pygit2.Tree): walk(files, eobj, parents+[name])
-      else:
-        data = eobj.data.replace('\r', '')
-        if (os.path.splitext(name)[1] == '.py' or 'python' in
-            data.split('\n')[0]):
-          files[os.path.join(*(parents+[name]))] = data
-
-  files1 = dict()
-  files2 = dict()
-  print repo.listall_references()
-
-  walk(files1, repo[repo.lookup_reference(id1).resolve().oid].tree, list())
-  walk(files2, repo[repo.lookup_reference(id2).resolve().oid].tree, list())
-
-  shared = set(files1.keys()) & set(files2.keys())
-  for key in shared:
-    p1_ast, p1_profile = genast.python(files1[key])
-    p2_ast, p2_profile = genast.python(files2[key])
-    output(key, p1_profile.edit_distance(p2_profile))
 
 @command
 def compare(repo):
@@ -236,49 +219,94 @@ def sequence(repo):
     plt.savefig(path, format='png')
     plt.clf()
 
+  class Counts(object):
+    def __init__(self, commits=0, merges=0, treediff=0, strdist=0):
+      self.commits = commits
+      self.merges = merges
+      self.treediff = treediff
+      self.strdist = strdist
+    def to_tuple(self):
+      return (self.commits, self.merges, self.treediff, self.strdist)
+    def __str__(self):
+      return (
+        '<Totals commits=%g merges=%g treediff=%g strdist=%g>' %
+        (self.commits, self.merges, self.treediff, self.strdist)
+      )
+
   head = repo.lookup_reference('HEAD').resolve()
   sort_mode = pygit2.GIT_SORT_REVERSE|pygit2.GIT_SORT_TOPOLOGICAL
-  count = 0
+  totals = Counts()
   commiters = dict()
   for commit in repo.walk(head.oid, sort_mode):
-    count += 1
+    log(commit.hex)
     name = commit.author.name.encode('utf8')
-    commiters[name] = commiters.get(name, 0) + 1
-
-
-  counts = tuple(commiters.itervalues())
-  Max = max(counts)
-  counts_nomax = list(counts)
-  counts_nomax.remove(Max)
-  mean = np.mean(counts)
-  stdev = np.std(counts)
-  var = np.var(counts)
- 
-  print count
-  print commiters
-  print mean
-  print stdev
-
-  histplot('histogram.png', counts)
-  
-  quants = stats.mstats.mquantiles(counts, [.80, .90, .99])
-  print quants.tolist()
-  print dir(quants)
-  print tuple(quants.tolist())
-  bottom, middle, top = tuple(quants.tolist())
-
-  commiters = sorted(commiters.iteritems(), key=lambda x: x[1])
-  for name, count in commiters:
-    if count >= top:
-      print name, count, 'high'
-    elif count >= middle:
-      print name, count, 'medium'
-    elif count > bottom:
-      print name, count, 'low'
-    elif count > 1:
-      print name, count, 'interloper'
+    if name not in commiters:
+      ccounts = Counts()
+      commiters[name] = ccounts
     else:
-      print name, count, 'one commit wonder'
+      ccounts = commiters[name]
+
+    ## count commits
+    totals.commits += 1
+    ccounts.commits += 1
+
+    ## count change metrics
+    files1 = dict()
+    tools.collect_python_files(files1, commit.tree, list())
+    for parent in commit.parents:
+      log(' '*4, parent.hex)
+      files2 = dict()
+      tools.collect_python_files(files2, parent.tree, list())
+      shared = set(files1.keys()) & set(files2.keys())
+      for key in shared:
+        if files1[key] == files2[key]: continue
+        log(' '*8, key)
+        sdist = strdist(files1[key], files2[key])
+        totals.strdist += sdist
+        ccounts.strdist += sdist
+        log(' '*12, sdist)
+        try:
+          p1_ast, p1_profile = genast.python(files1[key])
+          p2_ast, p2_profile = genast.python(files2[key])
+        except SyntaxError:
+          continue
+        dist = p1_profile.edit_distance(p2_profile) * 100.0
+        totals.treediff += dist
+        ccounts.treediff += dist
+        log(' '*12, dist)
+
+    
+    ## count merges
+    if len(commit.parents) > 1: 
+      totals.merges += 1
+      ccounts.merges += 1
+  
+  log('totals', totals)
+  normalized = dict()
+  for name, ccounts in commiters.iteritems():
+    log(name, ccounts)
+    new = Counts()
+    normalized[name] = new
+    new.commits = float(ccounts.commits)/float(totals.commits)
+    new.merges = float(ccounts.merges)/float(totals.merges)
+    new.treediff = float(ccounts.treediff)/float(totals.treediff)
+    new.strdist = float(ccounts.strdist)/float(totals.strdist)
+  
+  log()
+  for name, ccounts in normalized.iteritems():
+    log(name, ccounts)
+
+  if len(commiters) == 1:
+    log('There is only one commiter so no clustering')
+    return
+
+  log()
+  est = cluster.KMeans(k=min(max(len(commiters)/2, 2), 4)) 
+  est.fit([v.to_tuple() for k,v in normalized.iteritems()])
+  for name, group in ((name, est.predict(features.to_tuple()).tolist()[0]) 
+      for name, features in normalized.iteritems()):
+    log(name, group)
+
 
 commands = dict((name, attr)
   for name, attr in locals().iteritems()

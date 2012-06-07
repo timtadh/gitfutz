@@ -31,6 +31,8 @@ def python(text):
       elif issubclass(attrs.__class__, ast.AST):
         attr_node.addkid(construct(attrs))
       else:
+        if isinstance(attrs, unicode):
+          attrs = attrs.encode('utf8')
         attr_node.addkid(Node(str(attrs)))
     return node
 
