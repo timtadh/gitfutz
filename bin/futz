@@ -303,9 +303,11 @@ def sequence(repo):
   log()
   est = cluster.KMeans(k=min(max(len(commiters)/2, 2), 4)) 
   est.fit([v.to_tuple() for k,v in normalized.iteritems()])
-  for name, group in ((name, est.predict(features.to_tuple()).tolist()[0]) 
-      for name, features in normalized.iteritems()):
-    log(name, group)
+  groups = tuple((name, est.predict(features.to_tuple()).tolist()[0]) 
+      for name, features in normalized.iteritems())
+  groups = sorted(groups, key=lambda x: x[1])
+  for name, group in groups:
+    output(name, group, commiters[name])
 
 
 commands = dict((name, attr)
