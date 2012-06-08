@@ -4,13 +4,14 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-import os, sys
+import os, sys, time
 
 from fabric import api
 from fabric.api import local, settings, abort, run, cd, env
 from fabric.contrib.console import confirm
 
 HOME_DIR = '/home/tah35'
+OUTPUT_DIR = os.path.join(HOME_DIR, 'output')
 DEPLOY_DIR = os.path.join(HOME_DIR, 'deploy')
 FUTZ_DIR = os.path.join(DEPLOY_DIR, 'gitfutz')
 SUBJECT_DIR = os.path.join(HOME_DIR, 'subject')
@@ -18,9 +19,29 @@ ENV_DIR = os.path.join(DEPLOY_DIR, 'env')
 SRCS_DIR = os.path.join(HOME_DIR, 'srcs')
 DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 
-env.hosts = ['tah35@o405-u01.case.edu', 'tah35@o405-u02.case.edu',
-             'tah35@o405-u04.case.edu']
+#env.hosts = ['tah35@o405-u01.case.edu', 'tah35@o405-u02.case.edu',
+#             'tah35@o405-u04.case.edu']
+#env.hosts = ['tah35@o405-u06.case.edu', 'tah35@o405-u07.case.edu',
+#             'tah35@o405-u08.case.edu', 'tah35@o405-u10.case.edu',
+#             'tah35@o405-u11.case.edu', 'tah35@o405-u12.case.edu',
+#             'tah35@o405-u13.case.edu', 'tah35@o405-u14.case.edu',
+#]
 #env.shell = 'PYTHONPATH=/home/tah35/lib/python ' + env.shell
+
+def assert_local_dir_exists(path, nocreate=False):
+  '''checks if a directory exists. if not it creates it. if something exists
+  and it is not a directory it exits with an error.
+  '''
+  path = os.path.abspath(path)
+  if not os.path.exists(path) and nocreate:
+    log('No directory exists at location "%(path)s"' % locals())
+    usage(error_codes['file_not_found'])
+  elif not os.path.exists(path):
+    os.mkdir(path)
+  elif not os.path.isdir(path):
+    log('Expected a directory found a file. "%(path)s"' % locals())
+    usage(error_codes['file_instead_of_dir'])
+  return path
 
 def assert_dir_exists(path):
   '''checks if a directory exists. if not it creates it. if something exists
@@ -37,6 +58,19 @@ def _dir_exists(path):
     not_exists = run('test -d %s' % path).failed
   return not not_exists
 
+def _load_env_prefix():
+  swork = '.swork.activate'
+  activate = os.path.join(ENV_DIR, 'bin', 'activate')
+  futz_env = os.path.join(FUTZ_DIR, 'env')
+  
+  with settings(warn_only=True):
+    not_exists = run('test -L %s' % futz_env).failed
+  if not_exists:
+    run('ln -s %s %s' % (FUTZ_DIR, futz_env))
+
+  s = 'cd %s && source %s && source %s' % (FUTZ_DIR, swork, activate)
+  return s
+
 def deploy():
   with cd(assert_dir_exists(DEPLOY_DIR)):
     if not _dir_exists(FUTZ_DIR):
@@ -48,10 +82,33 @@ def deploy():
       mkenv()
 
 def mkenv():
-  run('/home/tah35/bin/virtualenv --no-site-packages %s' % ENV_DIR)
+  run('virtualenv --no-site-packages %s' % ENV_DIR)
 
 def install_cdeps():
-  pass
+  cdeps_dir = os.path.join(FUTZ_DIR, 'cdeps')
+  srcs_dir = os.path.join(cdeps_dir, 'srcs')
+  libgit2 = os.path.join(srcs_dir, 'libgit2')
+  libgit2_build = os.path.join(libgit2, 'build')
+  if _dir_exists(cdeps_dir): 
+    run('rm -rf %s' % cdeps_dir)
+  run('mkdir -p %s' % srcs_dir)
+  with cd(srcs_dir):
+    run('git clone https://github.com/libgit2/libgit2.git')
+  with cd(libgit2):
+    run('git checkout master')
+    run('mkdir build')
+  with cd(libgit2_build):
+    run('cmake .. -DCMAKE_INSTALL_PREFIX=%s' % cdeps_dir)
+    run('cmake --build . --target install')
+
+def install_pydeps():
+  pyreqs = os.path.join(FUTZ_DIR, 'python_requirements.txt')
+
+  with api.prefix(_load_env_prefix()):
+    run('pip install numpy')
+    run('pip install scipy')
+    run('pip install matplotlib')
+    run('cat %s | xargs pip install' % pyreqs)
 
 def install_virtualenv():
   virdir = os.path.join(SRCS_DIR, 'virtualenv')
@@ -61,7 +118,6 @@ def install_virtualenv():
     with cd(SRCS_DIR): run('git clone https://github.com/pypa/virtualenv.git')
   with cd(virdir):
     run('python setup.py install --home %s' % DEPS_DIR)
-  load_rcs()
 
 def install_cmake():
   url = 'http://www.cmake.org/files/v2.8/cmake-2.8.8.tar.gz'
@@ -80,7 +136,28 @@ def install_cmake():
     run('./configure --prefix=%s' % (DEPS_DIR))
     run('make')
     run('make install')
+
+def install():
   load_rcs()
+  install_virtualenv()
+  deploy()
+  install_cmake()
+  install_cdeps()
+  install_pydeps()
+  test_futz()
+
+def test_cmake():
+  run('cmake')
+
+def test_pygit2():
+  with api.prefix(_load_env_prefix()):
+    run("python -c 'import pygit2; print pygit2'")
+
+def test_futz():
+  with settings(warn_only=True):
+    with api.prefix(_load_env_prefix()):
+      o = run("futz --help")
+      assert o.return_code == 1
 
 def load_rcs():
   api.put('./remote-bashrc', '~/.bashrc')
@@ -90,4 +167,28 @@ def getsubject():
   if _dir_exists(SUBJECT_DIR):
     run('rm -rf %s' % SUBJECT_DIR)
   run('git clone %s %s' % (raw_input('subject? '), SUBJECT_DIR))
+
+def clean_output():
+  if _dir_exists(OUTPUT_DIR): run('rm -rf %s' % OUTPUT_DIR)
+
+def sequence():
+  starttime = time.strftime('%Y-%m-%d_%H-%M-%S')
+  outputname = 'sequence_'+starttime
+  output = os.path.join(OUTPUT_DIR, outputname)
+  localoutput = os.path.join('.', 'output')
+  localhostout = os.path.join(localoutput, env.host_string)
+  assert_dir_exists(OUTPUT_DIR)
+  assert_local_dir_exists(localoutput)
+  assert_local_dir_exists(localhostout)
+  with settings(warn_only=True):
+    with api.prefix(_load_env_prefix()):
+      o = run('futz -r %s sequence > %s' % (SUBJECT_DIR, output))
+      print 'the return code =', o.return_code
+  print 'FINISHED SEQUENCING'
+  api.get(output, os.path.join(localhostout, outputname))
+
+def merges():
+  with api.prefix(_load_env_prefix()):
+    run('futz -r %s merges' % SUBJECT_DIR)
+
 
