@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-import os, sys, math
+import os, sys, math, difflib
 from getopt import getopt, GetoptError
 
 import pygit2
@@ -220,17 +220,16 @@ def sequence(repo):
     plt.clf()
 
   class Counts(object):
-    def __init__(self, commits=0, merges=0, treediff=0, strdist=0):
+    def __init__(self, commits=0, merges=0, strdist=0):
       self.commits = commits
       self.merges = merges
-      self.treediff = treediff
       self.strdist = strdist
     def to_tuple(self):
-      return (self.commits, self.merges, self.treediff, self.strdist)
+      return (self.commits, self.merges, self.strdist)
     def __str__(self):
       return (
-        '<Totals commits=%g merges=%g treediff=%g strdist=%g>' %
-        (self.commits, self.merges, self.treediff, self.strdist)
+        '<Totals commits=%g merges=%g strdist=%g>' %
+        (self.commits, self.merges, self.strdist)
       )
 
   head = repo.lookup_reference('HEAD').resolve()
@@ -252,30 +251,21 @@ def sequence(repo):
 
     ## count change metrics
     files1 = dict()
-    tools.collect_python_files(files1, commit.tree, list())
+    tools.collect_files(files1, commit.tree, list())
     for parent in commit.parents:
       log(' '*4, parent.hex)
       files2 = dict()
-      tools.collect_python_files(files2, parent.tree, list())
+      tools.collect_files(files2, parent.tree, list())
       shared = set(files1.keys()) & set(files2.keys())
       for key in shared:
         if files1[key] == files2[key]: continue
         log(' '*8, key)
         sdist = strdist(files1[key], files2[key])
+        #sdist = difflib.SequenceMatcher(None, files1[key], files2[key]).real_quick_ratio()
         totals.strdist += sdist
         ccounts.strdist += sdist
         log(' '*12, sdist)
-        try:
-          p1_ast, p1_profile = genast.python(files1[key])
-          p2_ast, p2_profile = genast.python(files2[key])
-        except SyntaxError:
-          continue
-        dist = p1_profile.edit_distance(p2_profile) * 100.0
-        totals.treediff += dist
-        ccounts.treediff += dist
-        log(' '*12, dist)
 
-    
     ## count merges
     if len(commit.parents) > 1: 
       totals.merges += 1
@@ -289,7 +279,6 @@ def sequence(repo):
     normalized[name] = new
     new.commits = float(ccounts.commits)/float(totals.commits)
     new.merges = float(ccounts.merges)/float(totals.merges)
-    new.treediff = float(ccounts.treediff)/float(totals.treediff)
     new.strdist = float(ccounts.strdist)/float(totals.strdist)
   
   log()
