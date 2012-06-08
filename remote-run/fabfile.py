@@ -19,14 +19,20 @@ ENV_DIR = os.path.join(DEPLOY_DIR, 'env')
 SRCS_DIR = os.path.join(HOME_DIR, 'srcs')
 DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 
-#env.hosts = ['tah35@o405-u01.case.edu', 'tah35@o405-u02.case.edu',
-#             'tah35@o405-u04.case.edu']
-#env.hosts = ['tah35@o405-u06.case.edu', 'tah35@o405-u07.case.edu',
-#             'tah35@o405-u08.case.edu', 'tah35@o405-u10.case.edu',
-#             'tah35@o405-u11.case.edu', 'tah35@o405-u12.case.edu',
-#             'tah35@o405-u13.case.edu', 'tah35@o405-u14.case.edu',
-#]
-#env.shell = 'PYTHONPATH=/home/tah35/lib/python ' + env.shell
+subjects = {
+'tah35@o405-u01.case.edu':'https://github.com/pypa/virtualenv.git', 
+'tah35@o405-u02.case.edu':'https://github.com/pypa/pip.git', 
+'tah35@o405-u04.case.edu':'http://git.gnome.org/browse/gegl', 
+'tah35@o405-u05.case.edu':'https://github.com/django/django.git', 
+'tah35@o405-u06.case.edu':'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git', 
+'tah35@o405-u07.case.edu':'https://github.com/facebook/tornado.git',
+'tah35@o405-u08.case.edu':'https://github.com/joyent/node.git', 
+'tah35@o405-u10.case.edu':'https://github.com/jquery/jquery.git',
+'tah35@o405-u11.case.edu':'https://github.com/nathanmarz/storm.git', 
+'tah35@o405-u12.case.edu':'https://github.com/tenderlove/nokogiri.git',
+'tah35@o405-u13.case.edu':'https://github.com/antirez/redis.git', 
+'tah35@o405-u14.case.edu':'https://github.com/mongodb/mongo.git',
+}
 
 def assert_local_dir_exists(path, nocreate=False):
   '''checks if a directory exists. if not it creates it. if something exists
@@ -137,6 +143,13 @@ def install_cmake():
     run('make')
     run('make install')
 
+def install_subjects():
+  host = env.host_string
+  url = subjects[host]
+  if _dir_exists(SUBJECT_DIR):
+    run('rm -rf %s' % SUBJECT_DIR)
+  run('git clone %s %s' % (url, SUBJECT_DIR))
+
 def install():
   load_rcs()
   install_virtualenv()
@@ -144,6 +157,7 @@ def install():
   install_cmake()
   install_cdeps()
   install_pydeps()
+  install_subjects()
   test_futz()
 
 def test_cmake():
@@ -172,8 +186,11 @@ def clean_output():
   if _dir_exists(OUTPUT_DIR): run('rm -rf %s' % OUTPUT_DIR)
 
 def sequence():
+  host = env.host_string
+  url = subjects[host]
+  subject = os.path.splitext(os.path.basename(url))[0]
   starttime = time.strftime('%Y-%m-%d_%H-%M-%S')
-  outputname = 'sequence_'+starttime
+  outputname = 'sequence_%s_%s' % (subject, starttime)
   output = os.path.join(OUTPUT_DIR, outputname)
   localoutput = os.path.join('.', 'output')
   localhostout = os.path.join(localoutput, env.host_string)
@@ -190,5 +207,4 @@ def sequence():
 def merges():
   with api.prefix(_load_env_prefix()):
     run('futz -r %s merges' % SUBJECT_DIR)
-
 

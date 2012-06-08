@@ -1,0 +1,12 @@
+https://github.com/pypa/virtualenv.git                                     -- 01
+https://github.com/pypa/pip.git                                            -- 02
+http://git.gnome.org/browse/gegl                                           -- 04
+https://github.com/django/django.git                                       -- 05
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git         -- 06
+https://github.com/facebook/tornado.git                                    -- 07
+https://github.com/joyent/node.git                                         -- 08
+https://github.com/jquery/jquery.git                                       -- 10
+https://github.com/nathanmarz/storm.git                                    -- 11
+https://github.com/tenderlove/nokogiri.git                                 -- 12
+https://github.com/antirez/redis.git                                       -- 13
+https://github.com/mongodb/mongo.git                                       -- 14
