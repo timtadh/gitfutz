@@ -175,7 +175,6 @@ def install():
   install_cmake()
   install_cdeps()
   install_pydeps()
-  install_subjects()
   test_futz()
 
 def test_cmake():
