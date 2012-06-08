@@ -104,6 +104,8 @@ def deploy():
     run('git pull')
     if not _dir_exists(ENV_DIR):
       mkenv()
+  install_cdeps()
+  install_pydeps()
 
 def mkenv():
   run('virtualenv --no-site-packages %s' % ENV_DIR)
@@ -170,11 +172,9 @@ def install_subjects():
 
 def install():
   load_rcs()
+  install_cmake()
   install_virtualenv()
   deploy()
-  install_cmake()
-  install_cdeps()
-  install_pydeps()
   test_futz()
 
 def test_cmake():
