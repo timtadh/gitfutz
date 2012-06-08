@@ -92,7 +92,7 @@ def _load_env_prefix():
 def add_public_key(keyfile, name):
   rfile = os.path.join(HOME_DIR, '.ssh', name)
   authorized_keys = os.path.join(HOME_DIR, '.ssh', 'authorized_keys')
-  put(assert_local_file_exists(keyfile), rfile)
+  api.put(assert_local_file_exists(keyfile), rfile)
   run('cat %s >> %s' % (rfile, authorized_keys))
 
 def deploy():
