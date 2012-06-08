@@ -49,6 +49,18 @@ def assert_local_dir_exists(path, nocreate=False):
     usage(error_codes['file_instead_of_dir'])
   return path
 
+def assert_local_file_exists(path):
+  '''checks if the file exists. If it doesn't causes the program to exit.
+  @param path : path to file
+  @returns : the path to the file (an echo) [only on success]
+  '''
+  path = os.path.abspath(os.path.expanduser(path))
+  if not os.path.exists(path):
+    log('No file found. "%(path)s"' % locals())
+    usage(error_codes['file_not_found'])
+  return path
+
+
 def assert_dir_exists(path):
   '''checks if a directory exists. if not it creates it. if something exists
   and it is not a directory it exits with an error.
@@ -76,6 +88,12 @@ def _load_env_prefix():
 
   s = 'cd %s && source %s && source %s' % (FUTZ_DIR, swork, activate)
   return s
+
+def add_public_key(keyfile, name):
+  rfile = os.path.join(HOME_DIR, '.ssh', name)
+  authorized_keys = os.path.join(HOME_DIR, '.ssh', 'authorized_keys')
+  put(assert_local_file_exists(keyfile), rfile)
+  run('cat %s >> %s' % (rfile, authorized_keys))
 
 def deploy():
   with cd(assert_dir_exists(DEPLOY_DIR)):
