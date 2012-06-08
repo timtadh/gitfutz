@@ -293,7 +293,7 @@ def sequence(repo):
   est = cluster.KMeans(k=min(max(len(commiters)/2, 2), 4)) 
   est.fit([v.to_tuple() for k,v in normalized.iteritems()])
   groups = tuple((name, est.predict(features.to_tuple()).tolist()[0]) 
-      for name, features in normalized.iteritems())
+                  for name, features in normalized.iteritems())
   groups = sorted(groups, key=lambda x: x[1])
   for name, group in groups:
     output(name, group, commiters[name])
@@ -318,13 +318,16 @@ def main(args):
     io.usage(io.error_codes['option'])
 
   repo = None
+  repo_name = None
   for opt, arg in opts:
     if opt in ('-h', '--help'):
       io.usage()
     elif opt in ('-v', '--version'):
       version()
     elif opt in ('-r', '--repo'):
-      repo = pygit2.Repository(io.assert_dir_exists(arg, nocreate=True))
+      repo_path = io.assert_dir_exists(arg, nocreate=True)
+      repo = pygit2.Repository(repo_path)
+      repo_name = os.path.basename(repo_path)
 
   if len(args) == 0:
     log('must supply a subcommand')
@@ -338,6 +341,9 @@ def main(args):
   if repo is None:
     log('must supply a repository to operate on')
     io.usage(io.error_codes['option'])
+
+  output('Repositoy under study:', repo_name)
+  output()
 
   cmd = commands[sub_cmd]
   if cmd.func_code.co_argcount == 2:
