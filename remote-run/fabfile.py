@@ -185,6 +185,9 @@ def getsubject():
 def clean_output():
   if _dir_exists(OUTPUT_DIR): run('rm -rf %s' % OUTPUT_DIR)
 
+def check_processes():
+  run('ps -u')
+
 def sequence():
   host = env.host_string
   url = subjects[host]
