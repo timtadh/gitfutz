@@ -8,6 +8,7 @@ cdeps
 
 # swp files
 *.swp
+*.swo
 
 # png files
 *.png
