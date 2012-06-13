@@ -1,0 +1,34 @@
+commits=for 
+  commit in repo.walk(
+            repo.lookup_reference('HEAD').resolve().oid, 
+            pygit2.GIT_SORT_TOPOLOGICAL) 
+  let walk_tree = function(tree) {
+    for entry in tree
+      let eobj = entry.to_object() 
+      return "name"     : entry.name.encode("utf8"), 
+             "contents" : if (isinstance(eobj, pygit2.Tree))
+                          then walk_tree(eobj)
+                          else eobj.data
+  }
+  let diff_trees = function(A, B) {
+    for a in A, b in B
+      let a_name = a.name.encode('utf8')
+      let b_name = b.name.encode('utf8')
+      let a_eobj = a.to_object()
+      let b_eobj = b.to_object()
+      where a_name == b_name and
+            a_eobj.__class__ == b_eobj.__class__ and
+            (isinstance(a_eobj, pygit2.Tree) or a_eobj.data != b_eobj.data)
+      return "name" : a_name,
+             "diff" : if (isinstance(a_eobj, pygit2.Tree))
+                      then diff_trees(a_eobj, b_eobj)
+                      else null
+  }
+  let commit_id = commit.hex
+  let author = commit.author.name.encode('utf8')
+  where author.__contains__('Tim')
+  return commit_id, author, {
+    for parent in commit.parents
+      return diff_trees(commit.tree, parent.tree)
+  }
+------------
