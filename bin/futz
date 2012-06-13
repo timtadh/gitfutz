@@ -304,7 +304,12 @@ def repl(repo):
   class null(object):
     def __repr__(self): return str(self)
     def __str__(self): return 'null'
-  pyflwor.repl.REPL({'repo':repo, 'pygit2':pygit2, 'null':null()}).start()
+  pyflwor.repl.REPL({
+    'repo':repo, 
+    'pygit2':pygit2, 
+    'null':null(),
+    'difflib':difflib
+  }).start()
 
 
 
