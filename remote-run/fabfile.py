@@ -26,7 +26,7 @@ subjects = {
 'tah35@o405-u05.case.edu':'https://github.com/django/django.git', 
 'tah35@o405-u06.case.edu':'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git', 
 'tah35@o405-u07.case.edu':'https://github.com/facebook/tornado.git',
-'tah35@o405-u08.case.edu':'https://github.com/joyent/node.git', 
+'tah35@o405-u08.case.edu':'https://github.com/erlang/otp.git', 
 'tah35@o405-u10.case.edu':'https://github.com/jquery/jquery.git',
 'tah35@o405-u11.case.edu':'https://github.com/nathanmarz/storm.git', 
 'tah35@o405-u12.case.edu':'https://github.com/tenderlove/nokogiri.git',
@@ -106,6 +106,7 @@ def deploy():
       mkenv()
   install_cdeps()
   install_pydeps()
+  test_futz()
 
 def mkenv():
   run('virtualenv --no-site-packages %s' % ENV_DIR)
@@ -203,7 +204,7 @@ def clean_output():
   if _dir_exists(OUTPUT_DIR): run('rm -rf %s' % OUTPUT_DIR)
 
 def check_processes():
-  run('ps -u')
+  run('ps u -utah35')
 
 def sequence():
   host = env.host_string
