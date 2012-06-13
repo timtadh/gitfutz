@@ -15,6 +15,7 @@ from tst.suffix import SuffixTree
 import matplotlib.pyplot as plt
 from scipy import stats
 from sklearn import cluster
+import pyflwor, pyflwor.repl
 
 import gitfutz, gitfutz.fulltext
 from gitfutz import io
@@ -297,6 +298,14 @@ def sequence(repo):
   groups = sorted(groups, key=lambda x: x[1])
   for name, group in groups:
     output(name, group, commiters[name])
+
+@command
+def repl(repo):
+  class null(object):
+    def __repr__(self): return str(self)
+    def __str__(self): return 'null'
+  pyflwor.repl.REPL({'repo':repo, 'pygit2':pygit2, 'null':null()}).start()
+
 
 
 commands = dict((name, attr)
