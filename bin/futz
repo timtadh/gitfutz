@@ -315,6 +315,88 @@ def repl(repo):
     'log':log,
   }).start()
 
+sequence_query = pyflwor.compile('''
+for 
+  commit in repo.walk(
+            repo.lookup_reference('HEAD').resolve().oid, 
+            pygit2.GIT_SORT_TOPOLOGICAL) 
+  let diff_trees = function(A, B, parents) {
+    for a in A, b in B
+      let a_name = a.name.encode('utf8')
+      let b_name = b.name.encode('utf8')
+      let a_eobj = a.to_object()
+      let b_eobj = b.to_object()
+      let path = os.path.join(parents, a_name)
+      let ext = os.path.splitext(a_name)[1]
+      let _ = 
+          if a_name == b_name and
+            a_eobj.__class__ == b_eobj.__class__ and
+            ext not in <excluded_exts> and
+            path not in <excluded_files> and
+            (not isinstance(a_eobj, pygit2.Tree) and a_eobj.data != b_eobj.data)
+          then log(' '*4, path)
+          else None
+      where a_name == b_name and
+            a_eobj.__class__ == b_eobj.__class__ and
+            ext not in <excluded_exts> and
+            path not in <excluded_files> and
+            (isinstance(a_eobj, pygit2.Tree) or a_eobj.data != b_eobj.data)
+      return flatten 
+        if (isinstance(a_eobj, pygit2.Tree))
+        then diff_trees(a_eobj, b_eobj, path)
+        else {
+          "path" : path,
+          "dist" : strdist(a_eobj.data, b_eobj.data)
+        }
+  }
+  let commit_id = commit.hex
+  let author = commit.author.name.encode('utf8')
+  let merge = (if len(commit.parents) > 1 then 1 else 0)
+  let _ = log(commit_id, author)
+  let dist = sum({
+    for parent in commit.parents
+    return flatten {
+      for d in diff_trees(commit.tree, parent.tree, '')
+      return d["dist"]
+    }
+  })
+reduce "dist":dist, "commits":1, "merges":merge
+  as author with function(p, n) {
+    if p == None 
+    then n
+    else {
+      "dist": p["dist"] + n["dist"], 
+      "commits": p["commits"] + n["commits"],
+      "merges": p["merges"] + n["merges"] 
+    }
+  }
+''')
+
+@command
+def qsequence(repo):
+  def strdist(a,b):
+    return difflib.SequenceMatcher(None, a, b).real_quick_ratio()
+  objs = {
+    'repo':repo, 
+    'pygit2':pygit2, 
+    'difflib':difflib,
+    'strdist':strdist,
+    'os':os,
+    'sys':sys,
+    'log':log,
+    'excluded_exts': {
+      '.pdf', '.png', '.out', '.exe', '.graffle', '.odt', '.gv', '.doc',
+      '.jpg', '.tiff', 
+    },
+    'excluded_files':{
+      'src/retrie/testdictionary/dictionary.go',
+      'src/structures/b+bot',
+    }
+  }
+  objs.update(__builtins__.__dict__)
+  results = sequence_query(objs) 
+  for name, totals in results.iteritems():
+      print name, totals
 
 
 commands = dict((name, attr)

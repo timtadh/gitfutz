@@ -36,6 +36,7 @@ sequence=for
   commit in repo.walk(
             repo.lookup_reference('HEAD').resolve().oid, 
             pygit2.GIT_SORT_TOPOLOGICAL) 
+  let exclude = ['.pdf', '.png', '.out', '.exe']
   let diff_trees = function(A, B, parents) {
     for a in A, b in B
       let a_name = a.name.encode('utf8')
@@ -44,11 +45,13 @@ sequence=for
       let b_eobj = b.to_object()
       let _ = if a_name == b_name and
             a_eobj.__class__ == b_eobj.__class__ and
-            (isinstance(a_eobj, pygit2.Tree) or a_eobj.data != b_eobj.data)
+            os.path.splitext(a_name)[1] not in <exclude> and
+            (not isinstance(a_eobj, pygit2.Tree) and a_eobj.data != b_eobj.data)
             then log(' '*4, os.path.join(parents, a_name))
             else None
       where a_name == b_name and
             a_eobj.__class__ == b_eobj.__class__ and
+            os.path.splitext(a_name)[1] not in <exclude> and
             (isinstance(a_eobj, pygit2.Tree) or a_eobj.data != b_eobj.data)
       return flatten 
         if (isinstance(a_eobj, pygit2.Tree))
