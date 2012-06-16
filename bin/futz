@@ -309,7 +309,10 @@ def repl(repo):
     'pygit2':pygit2, 
     'null':null(),
     'difflib':difflib,
-    'strdist':strdist
+    'strdist':strdist,
+    'os':os,
+    'sys':sys,
+    'log':log,
   }).start()
 
 
