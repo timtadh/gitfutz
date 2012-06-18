@@ -324,19 +324,21 @@ for
     for a in A, b in B
       let a_name = a.name.encode('utf8')
       let b_name = b.name.encode('utf8')
-      let a_eobj = a.to_object()
-      let b_eobj = b.to_object()
+      let a_eobj = if a.oid in repo then a.to_object() else None
+      let b_eobj = if b.oid in repo then b.to_object() else None
       let path = os.path.join(parents, a_name)
       let ext = os.path.splitext(a_name)[1]
       let _ = 
-          if a_name == b_name and
+          if a_eobj != None and b_eobj != None and
+            a_name == b_name and
             a_eobj.__class__ == b_eobj.__class__ and
             ext not in <excluded_exts> and
             path not in <excluded_files> and
             (not isinstance(a_eobj, pygit2.Tree) and a_eobj.data != b_eobj.data)
           then log(' '*4, path)
           else None
-      where a_name == b_name and
+      where a_eobj != None and b_eobj != None and
+            a_name == b_name and
             a_eobj.__class__ == b_eobj.__class__ and
             ext not in <excluded_exts> and
             path not in <excluded_files> and

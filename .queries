@@ -32,32 +32,38 @@ commits=for
       return diff_trees(commit.tree, parent.tree)
   }
 ------------
-sequence=for 
+sequence=for
   commit in repo.walk(
-            repo.lookup_reference('HEAD').resolve().oid, 
-            pygit2.GIT_SORT_TOPOLOGICAL) 
-  let exclude = ['.pdf', '.png', '.out', '.exe']
+            repo.lookup_reference('HEAD').resolve().oid,
+            pygit2.GIT_SORT_TOPOLOGICAL)
   let diff_trees = function(A, B, parents) {
     for a in A, b in B
       let a_name = a.name.encode('utf8')
       let b_name = b.name.encode('utf8')
-      let a_eobj = a.to_object()
-      let b_eobj = b.to_object()
-      let _ = if a_name == b_name and
+      let a_eobj = if a.oid in repo then a.to_object() else None
+      let b_eobj = if b.oid in repo then b.to_object() else None
+      let path = os.path.join(parents, a_name)
+      let ext = os.path.splitext(a_name)[1]
+      let _ =
+          if a_eobj != None and b_eobj != None and
+            a_name == b_name and
             a_eobj.__class__ == b_eobj.__class__ and
-            os.path.splitext(a_name)[1] not in <exclude> and
+            ext not in <excluded_exts> and
+            path not in <excluded_files> and
             (not isinstance(a_eobj, pygit2.Tree) and a_eobj.data != b_eobj.data)
-            then log(' '*4, os.path.join(parents, a_name))
-            else None
-      where a_name == b_name and
+          then log(' '*4, path)
+          else None
+      where a_eobj != None and b_eobj != None and
+            a_name == b_name and
             a_eobj.__class__ == b_eobj.__class__ and
-            os.path.splitext(a_name)[1] not in <exclude> and
+            ext not in <excluded_exts> and
+            path not in <excluded_files> and
             (isinstance(a_eobj, pygit2.Tree) or a_eobj.data != b_eobj.data)
-      return flatten 
+      return flatten
         if (isinstance(a_eobj, pygit2.Tree))
-        then diff_trees(a_eobj, b_eobj, os.path.join(parents, a_name))
+        then diff_trees(a_eobj, b_eobj, path)
         else {
-          "name" : os.path.join(parents, a_name),
+          "path" : path,
           "dist" : strdist(a_eobj.data, b_eobj.data)
         }
   }
@@ -74,12 +80,12 @@ sequence=for
   })
 reduce "dist":dist, "commits":1, "merges":merge
   as author with function(p, n) {
-    if p == None 
+    if p == None
     then n
     else {
-      "dist": p["dist"] + n["dist"], 
+      "dist": p["dist"] + n["dist"],
       "commits": p["commits"] + n["commits"],
-      "merges": p["merges"] + n["merges"] 
+      "merges": p["merges"] + n["merges"]
     }
   }
 ------------
