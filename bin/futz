@@ -353,6 +353,7 @@ for
   }
   let commit_id = commit.hex
   let author = commit.author.name.encode('utf8')
+  let email = commit.author.email.encode('utf8')
   let merge = (if len(commit.parents) > 1 then 1 else 0)
   let _ = log(commit_id, author)
   let dist = sum({
@@ -362,7 +363,13 @@ for
       return d["dist"]
     }
   })
-reduce "dist":dist, "commits":1, "merges":merge
+  let commit_type = function(commit) { 
+    tuple([int(commit.hex[0], 16)/2, author])
+  }
+collect set([email]) as author with function(p, n) {
+  if p == None then n else p.union(n)
+}
+collect "dist":dist, "commits":1, "merges":merge
   as author with function(p, n) {
     if p == None 
     then n
@@ -372,6 +379,9 @@ reduce "dist":dist, "commits":1, "merges":merge
       "merges": p["merges"] + n["merges"] 
     }
   }
+collect commit as commit_type(commit) with function(p, n) {
+  if p == None then 1 else p + 1
+}
 ''')
 
 @command
@@ -397,8 +407,13 @@ def qsequence(repo):
   }
   objs.update(__builtins__.__dict__)
   results = sequence_query(objs) 
-  for name, totals in results.iteritems():
-      print name, totals
+  print
+  for d in results:
+    print
+    print '-----------------'
+    print
+    for name, value in d.iteritems():
+      print name, value
 
 
 commands = dict((name, attr)
