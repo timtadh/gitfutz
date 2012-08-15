@@ -155,31 +155,58 @@ DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 #    'https://github.com/twitter/thrift_client',
 #}
 
+#subjects = {
+#'tah35@o405-u01.case.edu':
+#    'https://github.com/twitter/streamyj',
+#'tah35@o405-u02.case.edu':
+#    'https://github.com/twitter/scala-zookeeper-client',
+#'tah35@o405-u04.case.edu':
+#    'https://github.com/twitter/joauth',
+#'tah35@o405-u05.case.edu':
+#    'https://github.com/twitter/haplocheirus',
+#'tah35@o405-u06.case.edu':
+#    'https://github.com/twitter/cloudhopper-commons-gsm',
+#'tah35@o405-u07.case.edu':
+#    'https://github.com/twitter/cloudhopper-commons-util',
+#'tah35@o405-u08.case.edu':
+#    'https://github.com/twitter/grabby-hands',
+#'tah35@o405-u10.case.edu':
+#    'https://github.com/twitter/webrat',
+#'tah35@o405-u11.case.edu':
+#    'https://github.com/twitter/mustache.js',
+#'tah35@o405-u12.case.edu':
+#    'https://github.com/twitter/rubyenterpriseedition187-248',
+#'tah35@o405-u13.case.edu':
+#    'https://github.com/twitter/flockdb-client',
+#'tah35@o405-u14.case.edu':
+#    'https://github.com/twitter/twitcher',
+#}
+
 subjects = {
 'tah35@o405-u01.case.edu':
-    'https://github.com/twitter/streamyj',
+    'https://github.com/twitter/Rowz',
 'tah35@o405-u02.case.edu':
-    'https://github.com/twitter/scala-zookeeper-client',
+    'https://github.com/twitter/time_constants',
 'tah35@o405-u04.case.edu':
-    'https://github.com/twitter/joauth',
+    'https://github.com/twitter/scribe',
 'tah35@o405-u05.case.edu':
-    'https://github.com/twitter/haplocheirus',
+    'https://github.com/twitter/rpc-client',
 'tah35@o405-u06.case.edu':
-    'https://github.com/twitter/cloudhopper-commons-gsm',
+    'https://github.com/twitter/schmemcached',
 'tah35@o405-u07.case.edu':
-    'https://github.com/twitter/cloudhopper-commons-util',
+    'https://github.com/twitter/chainsaw',
 'tah35@o405-u08.case.edu':
-    'https://github.com/twitter/grabby-hands',
+    'https://github.com/twitter/xrayspecs',
 'tah35@o405-u10.case.edu':
-    'https://github.com/twitter/webrat',
+    'https://github.com/twitter/thrift',
 'tah35@o405-u11.case.edu':
-    'https://github.com/twitter/mustache.js',
+    'https://github.com/twitter/mysql',
 'tah35@o405-u12.case.edu':
-    'https://github.com/twitter/rubyenterpriseedition187-248',
+    'http://git.gnome.org/browse/gegl',
 'tah35@o405-u13.case.edu':
-    'https://github.com/twitter/flockdb-client',
+    'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git',
 'tah35@o405-u14.case.edu':
-    'https://github.com/twitter/twitcher',
+    'https://github.com/kohsuke/hudson',
 }
 
 def assert_local_dir_exists(path, nocreate=False):
