@@ -19,19 +19,33 @@ ENV_DIR = os.path.join(DEPLOY_DIR, 'env')
 SRCS_DIR = os.path.join(HOME_DIR, 'srcs')
 DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 
+#subjects = {
+#'tah35@o405-u01.case.edu':'https://github.com/pypa/virtualenv.git',
+#'tah35@o405-u02.case.edu':'https://github.com/pypa/pip.git',
+#'tah35@o405-u04.case.edu':'http://git.gnome.org/browse/gegl',
+#'tah35@o405-u05.case.edu':'https://github.com/django/django.git',
+#'tah35@o405-u06.case.edu':'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git',
+#'tah35@o405-u07.case.edu':'https://github.com/facebook/tornado.git',
+#'tah35@o405-u08.case.edu':'https://github.com/erlang/otp.git',
+#'tah35@o405-u10.case.edu':'https://github.com/jquery/jquery.git',
+#'tah35@o405-u11.case.edu':'https://github.com/nathanmarz/storm.git',
+#'tah35@o405-u12.case.edu':'https://github.com/tenderlove/nokogiri.git',
+#'tah35@o405-u13.case.edu':'https://github.com/antirez/redis.git',
+#'tah35@o405-u14.case.edu':'https://github.com/mongodb/mongo.git',
+#}
 subjects = {
-'tah35@o405-u01.case.edu':'https://github.com/pypa/virtualenv.git', 
-'tah35@o405-u02.case.edu':'https://github.com/pypa/pip.git', 
-'tah35@o405-u04.case.edu':'http://git.gnome.org/browse/gegl', 
-'tah35@o405-u05.case.edu':'https://github.com/django/django.git', 
-'tah35@o405-u06.case.edu':'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git', 
-'tah35@o405-u07.case.edu':'https://github.com/facebook/tornado.git',
-'tah35@o405-u08.case.edu':'https://github.com/erlang/otp.git', 
-'tah35@o405-u10.case.edu':'https://github.com/jquery/jquery.git',
-'tah35@o405-u11.case.edu':'https://github.com/nathanmarz/storm.git', 
-'tah35@o405-u12.case.edu':'https://github.com/tenderlove/nokogiri.git',
-'tah35@o405-u13.case.edu':'https://github.com/antirez/redis.git', 
-'tah35@o405-u14.case.edu':'https://github.com/mongodb/mongo.git',
+'tah35@o405-u01.case.edu':'https://github.com/twitter/bootstrap.git',
+'tah35@o405-u02.case.edu':'https://github.com/twitter/scalding.git',
+'tah35@o405-u04.case.edu':'https://github.com/twitter/scala_school.git',
+'tah35@o405-u05.case.edu':'https://github.com/twitter/util.git',
+'tah35@o405-u06.case.edu':'https://github.com/twitter/cassovary.git',
+'tah35@o405-u07.case.edu':'https://github.com/twitter/zipkin.git',
+'tah35@o405-u08.case.edu':'https://github.com/twitter/cassandra.git',
+'tah35@o405-u10.case.edu':'https://github.com/twitter/commons.git',
+'tah35@o405-u11.case.edu':'https://github.com/twitter/finagle.git',
+'tah35@o405-u12.case.edu':'https://github.com/twitter/activerecord-reputation-system.git',
+'tah35@o405-u13.case.edu':'https://github.com/twitter/twitter-cldr-rb.git',
+'tah35@o405-u14.case.edu':'https://github.com/twitter/twitter-text-rb.git',
 }
 
 def assert_local_dir_exists(path, nocreate=False):
@@ -80,7 +94,7 @@ def _load_env_prefix():
   swork = '.swork.activate'
   activate = os.path.join(ENV_DIR, 'bin', 'activate')
   futz_env = os.path.join(FUTZ_DIR, 'env')
-  
+
   with settings(warn_only=True):
     not_exists = run('test -L %s' % futz_env).failed
   if not_exists:
@@ -116,7 +130,7 @@ def install_cdeps():
   srcs_dir = os.path.join(cdeps_dir, 'srcs')
   libgit2 = os.path.join(srcs_dir, 'libgit2')
   libgit2_build = os.path.join(libgit2, 'build')
-  if _dir_exists(cdeps_dir): 
+  if _dir_exists(cdeps_dir):
     run('rm -rf %s' % cdeps_dir)
   run('mkdir -p %s' % srcs_dir)
   with cd(srcs_dir):
