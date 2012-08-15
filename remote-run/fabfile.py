@@ -226,7 +226,9 @@ def sequence():
   subject = os.path.splitext(os.path.basename(url))[0]
   starttime = time.strftime('%Y-%m-%d_%H-%M-%S')
   outputname = 'sequence_%s_%s' % (subject, starttime)
+  logname = 'log_sequence_%s_%s' % (subject, starttime)
   output = os.path.join(OUTPUT_DIR, outputname)
+  logpath = os.path.join(OUTPUT_DIR, outputname)
   localoutput = os.path.join('.', 'output')
   localhostout = os.path.join(localoutput, env.host_string)
   assert_dir_exists(OUTPUT_DIR)
@@ -234,10 +236,11 @@ def sequence():
   assert_local_dir_exists(localhostout)
   with settings(warn_only=True):
     with api.prefix(_load_env_prefix()):
-      o = run('futz -r %s sequence > %s' % (SUBJECT_DIR, output))
+      o = run('futz -r %s sequence 1> %s 2> %s' % (SUBJECT_DIR, output, logpath))
       print 'the return code =', o.return_code
   print 'FINISHED SEQUENCING'
   api.get(output, os.path.join(localhostout, outputname))
+  api.get(logpath, os.path.join(localhostout, logname))
 
 def merges():
   with settings(warn_only=True):
