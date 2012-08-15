@@ -401,10 +401,10 @@ def qsequence(repo):
       '.pdf', '.png', '.out', '.exe', '.graffle', '.odt', '.gv', '.doc',
       '.jpg', '.tiff',
     ]),
-    'excluded_files':{
+    'excluded_files': set([
       'src/retrie/testdictionary/dictionary.go',
       'src/structures/b+bot',
-    }
+    ])
   }
   objs.update(__builtins__.__dict__)
   results = sequence_query(objs)
