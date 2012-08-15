@@ -74,31 +74,58 @@ DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 #    'https://github.com/twitter/recess',
 #}
 
+#subjects = {
+#'tah35@o405-u01.case.edu':
+#    'https://github.com/twitter/twitter.github.com',
+#'tah35@o405-u02.case.edu':
+#    'https://github.com/twitter/effectivescala',
+#'tah35@o405-u04.case.edu':
+#    'https://github.com/twitter/ambrose',
+#'tah35@o405-u05.case.edu':
+#    'https://github.com/twitter/hadoop-lzo',
+#'tah35@o405-u06.case.edu':
+#    'https://github.com/twitter/twemcache',
+#'tah35@o405-u07.case.edu':
+#    'https://github.com/twitter/snowflake',
+#'tah35@o405-u08.case.edu':
+#    'https://github.com/twitter/scrooge',
+#'tah35@o405-u10.case.edu':
+#    'https://github.com/twitter/hogan.js',
+#'tah35@o405-u11.case.edu':
+#    'https://github.com/twitter/elephant-twin-lzo',
+#'tah35@o405-u12.case.edu':
+#    'https://github.com/twitter/elephant-twin',
+#'tah35@o405-u13.case.edu':
+#    'https://github.com/twitter/cassie',
+#'tah35@o405-u14.case.edu':
+#    'https://github.com/twitter/twitter4j',
+#}
+
 subjects = {
 'tah35@o405-u01.case.edu':
-    'https://github.com/twitter/twitter.github.com',
+    'https://github.com/twitter/bootstrap-server',
 'tah35@o405-u02.case.edu':
-    'https://github.com/twitter/effectivescala',
+    'https://github.com/twitter/twui',
 'tah35@o405-u04.case.edu':
-    'https://github.com/twitter/ambrose',
+    'https://github.com/twitter/sbt-scrooge',
 'tah35@o405-u05.case.edu':
-    'https://github.com/twitter/hadoop-lzo',
+    'https://github.com/twitter/naggati2',
 'tah35@o405-u06.case.edu':
-    'https://github.com/twitter/twemcache',
+    'https://github.com/twitter/sbt-package-dist',
 'tah35@o405-u07.case.edu':
-    'https://github.com/twitter/snowflake',
+    'https://github.com/twitter/gizzmo',
 'tah35@o405-u08.case.edu':
-    'https://github.com/twitter/scrooge',
+    'https://github.com/twitter/flockdb',
 'tah35@o405-u10.case.edu':
-    'https://github.com/twitter/hogan.js',
+    'https://github.com/twitter/mahout',
 'tah35@o405-u11.case.edu':
-    'https://github.com/twitter/elephant-twin-lzo',
+    'https://github.com/twitter/scala-bootstrapper',
 'tah35@o405-u12.case.edu':
-    'https://github.com/twitter/elephant-twin',
+    'https://github.com/twitter/innovators-patent-agreement',
 'tah35@o405-u13.case.edu':
-    'https://github.com/twitter/cassie',
+    'https://github.com/twitter/twemperf',
 'tah35@o405-u14.case.edu':
-    'https://github.com/twitter/twitter4j',
+    'https://github.com/twitter/gizzard',
 }
 
 def assert_local_dir_exists(path, nocreate=False):
