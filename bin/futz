@@ -15,7 +15,7 @@ from tst.suffix import SuffixTree
 import matplotlib.pyplot as plt
 from scipy import stats
 from sklearn import cluster
-import pyflwor, pyflwor.repl
+import pyflwor
 
 import gitfutz, gitfutz.fulltext
 from gitfutz import io
@@ -301,6 +301,7 @@ def sequence(repo):
 
 @command
 def repl(repo):
+  pyflwor.repl
   class null(object):
     def __repr__(self): return str(self)
     def __str__(self): return 'null'
