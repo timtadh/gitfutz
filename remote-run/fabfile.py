@@ -228,7 +228,7 @@ def sequence():
   outputname = 'sequence_%s_%s' % (subject, starttime)
   logname = 'log_sequence_%s_%s' % (subject, starttime)
   output = os.path.join(OUTPUT_DIR, outputname)
-  logpath = os.path.join(OUTPUT_DIR, outputname)
+  logpath = os.path.join(OUTPUT_DIR, logname)
   localoutput = os.path.join('.', 'output')
   localhostout = os.path.join(localoutput, env.host_string)
   assert_dir_exists(OUTPUT_DIR)
