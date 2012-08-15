@@ -126,7 +126,7 @@ def index(repo, args):
       exts.add(arg)
     elif opt in ('--exclude',):
       excludes.add(arg)
-  
+
   index = gitfutz.fulltext.index(repo, exts, excludes)
   while True:
     query = raw_input('> ')
@@ -158,7 +158,7 @@ def compare_ids(repo, args):
 
 @command
 def compare(repo):
-  
+
   def walk(files, tree, parents):
     for entry in tree:
       name = entry.name.encode('utf8')
@@ -167,7 +167,7 @@ def compare(repo):
       else:
         data = eobj.data.replace('\r', '')
         line = data.split('\n', 1)[0].strip()
-        if (os.path.splitext(name)[1] == '.py' or 
+        if (os.path.splitext(name)[1] == '.py' or
             ('python' in line and line[0] == '#')):
           files[os.path.join(*(parents+[name]))] = data
 
@@ -195,7 +195,7 @@ def compare(repo):
         dists.append(dist)
         strdists.append(sdist)
         output(' '*4, key, dist, sdist)
-  
+
   print 'mean:', np.mean(dists), np.mean(strdists)
   print 'var:', np.var(dists), np.var(strdists)
   print 'std:', np.std(dists), np.std(strdists)
@@ -261,17 +261,17 @@ def sequence(repo):
       for key in shared:
         if files1[key] == files2[key]: continue
         log(' '*8, key)
-        sdist = strdist(files1[key], files2[key])
-        #sdist = difflib.SequenceMatcher(None, files1[key], files2[key]).real_quick_ratio()
+        #sdist = strdist(files1[key], files2[key])
+        sdist = difflib.SequenceMatcher(None, files1[key], files2[key]).real_quick_ratio()
         totals.strdist += sdist
         ccounts.strdist += sdist
         log(' '*12, sdist)
 
     ## count merges
-    if len(commit.parents) > 1: 
+    if len(commit.parents) > 1:
       totals.merges += 1
       ccounts.merges += 1
-  
+
   log('totals', totals)
   normalized = dict()
   for name, ccounts in commiters.iteritems():
@@ -281,7 +281,7 @@ def sequence(repo):
     new.commits = float(ccounts.commits)/float(totals.commits)
     new.merges = float(ccounts.merges)/float(totals.merges)
     new.strdist = float(ccounts.strdist)/float(totals.strdist)
-  
+
   log()
   for name, ccounts in normalized.iteritems():
     log(name, ccounts)
@@ -291,9 +291,9 @@ def sequence(repo):
     return
 
   log()
-  est = cluster.KMeans(k=min(max(len(commiters)/2, 2), 4)) 
+  est = cluster.KMeans(k=min(max(len(commiters)/2, 2), 4))
   est.fit([v.to_tuple() for k,v in normalized.iteritems()])
-  groups = tuple((name, est.predict(features.to_tuple()).tolist()[0]) 
+  groups = tuple((name, est.predict(features.to_tuple()).tolist()[0])
                   for name, features in normalized.iteritems())
   groups = sorted(groups, key=lambda x: x[1])
   for name, group in groups:
@@ -305,21 +305,22 @@ def repl(repo):
     def __repr__(self): return str(self)
     def __str__(self): return 'null'
   pyflwor.repl.REPL({
-    'repo':repo, 
-    'pygit2':pygit2, 
+    'repo':repo,
+    'pygit2':pygit2,
     'null':null(),
     'difflib':difflib,
     'strdist':strdist,
     'os':os,
     'sys':sys,
     'log':log,
+    'gitfutz':gitfutz,
   }).start()
 
 sequence_query = pyflwor.compile('''
-for 
+for
   commit in repo.walk(
-            repo.lookup_reference('HEAD').resolve().oid, 
-            pygit2.GIT_SORT_TOPOLOGICAL) 
+            repo.lookup_reference('HEAD').resolve().oid,
+            pygit2.GIT_SORT_TOPOLOGICAL)
   let diff_trees = function(A, B, parents) {
     for a in A, b in B
       let a_name = a.name.encode('utf8')
@@ -328,7 +329,7 @@ for
       let b_eobj = if b.oid in repo then b.to_object() else None
       let path = os.path.join(parents, a_name)
       let ext = os.path.splitext(a_name)[1]
-      let _ = 
+      let _ =
           if a_eobj != None and b_eobj != None and
             a_name == b_name and
             a_eobj.__class__ == b_eobj.__class__ and
@@ -343,7 +344,7 @@ for
             ext not in <excluded_exts> and
             path not in <excluded_files> and
             (isinstance(a_eobj, pygit2.Tree) or a_eobj.data != b_eobj.data)
-      return flatten 
+      return flatten
         if (isinstance(a_eobj, pygit2.Tree))
         then diff_trees(a_eobj, b_eobj, path)
         else {
@@ -363,7 +364,7 @@ for
       return d["dist"]
     }
   })
-  let commit_type = function(commit) { 
+  let commit_type = function(commit) {
     tuple([int(commit.hex[0], 16)/2, author])
   }
 collect set([email]) as author with function(p, n) {
@@ -371,12 +372,12 @@ collect set([email]) as author with function(p, n) {
 }
 collect "dist":dist, "commits":1, "merges":merge
   as author with function(p, n) {
-    if p == None 
+    if p == None
     then n
     else {
-      "dist": p["dist"] + n["dist"], 
+      "dist": p["dist"] + n["dist"],
       "commits": p["commits"] + n["commits"],
-      "merges": p["merges"] + n["merges"] 
+      "merges": p["merges"] + n["merges"]
     }
   }
 collect commit as commit_type(commit) with function(p, n) {
@@ -389,8 +390,8 @@ def qsequence(repo):
   def strdist(a,b):
     return difflib.SequenceMatcher(None, a, b).real_quick_ratio()
   objs = {
-    'repo':repo, 
-    'pygit2':pygit2, 
+    'repo':repo,
+    'pygit2':pygit2,
     'difflib':difflib,
     'strdist':strdist,
     'os':os,
@@ -398,7 +399,7 @@ def qsequence(repo):
     'log':log,
     'excluded_exts': {
       '.pdf', '.png', '.out', '.exe', '.graffle', '.odt', '.gv', '.doc',
-      '.jpg', '.tiff', 
+      '.jpg', '.tiff',
     },
     'excluded_files':{
       'src/retrie/testdictionary/dictionary.go',
@@ -406,7 +407,7 @@ def qsequence(repo):
     }
   }
   objs.update(__builtins__.__dict__)
-  results = sequence_query(objs) 
+  results = sequence_query(objs)
   print
   for d in results:
     print
@@ -449,7 +450,7 @@ def main(args):
   if len(args) == 0:
     log('must supply a subcommand')
     io.usage(io.error_codes['option'])
-  
+
   sub_cmd = args[0]
   if sub_cmd not in commands:
     log('command %s is not available' % sub_cmd)
@@ -458,9 +459,6 @@ def main(args):
   if repo is None:
     log('must supply a repository to operate on')
     io.usage(io.error_codes['option'])
-
-  output('Repositoy under study:', repo_name)
-  output()
 
   cmd = commands[sub_cmd]
   if cmd.func_code.co_argcount == 2:
