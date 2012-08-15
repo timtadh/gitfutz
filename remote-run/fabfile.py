@@ -47,31 +47,58 @@ DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 #'tah35@o405-u13.case.edu':'https://github.com/twitter/twitter-cldr-rb.git',
 #'tah35@o405-u14.case.edu':'https://github.com/twitter/twitter-text-rb.git',
 #}
+#subjects = {
+#'tah35@o405-u01.case.edu':
+#    'https://github.com/twitter/algebird',
+#'tah35@o405-u02.case.edu':
+#    'https://github.com/twitter/hdfs-du',
+#'tah35@o405-u04.case.edu':
+#    'https://github.com/twitter/ostrich',
+#'tah35@o405-u05.case.edu':
+#    'https://github.com/twitter/twitter-cldr-js',
+#'tah35@o405-u06.case.edu':
+#    'https://github.com/twitter/twemproxy',
+#'tah35@o405-u07.case.edu':
+#    'https://github.com/twitter/twitter-text-objc',
+#'tah35@o405-u08.case.edu':
+#    'https://github.com/twitter/twitter-text-java',
+#'tah35@o405-u10.case.edu':
+#    'https://github.com/twitter/pycascading',
+#'tah35@o405-u11.case.edu':
+#    'https://github.com/twitter/twitter-text-conformance',
+#'tah35@o405-u12.case.edu':
+#    'https://github.com/twitter/twitter-text-js',
+#'tah35@o405-u13.case.edu':
+#    'https://github.com/twitter/iago',
+#'tah35@o405-u14.case.edu':
+#    'https://github.com/twitter/recess',
+#}
+
 subjects = {
 'tah35@o405-u01.case.edu':
-    'https://github.com/twitter/algebird',
+    'https://github.com/twitter/twitter.github.com',
 'tah35@o405-u02.case.edu':
-    'https://github.com/twitter/hdfs-du',
+    'https://github.com/twitter/effectivescala',
 'tah35@o405-u04.case.edu':
-    'https://github.com/twitter/ostrich',
+    'https://github.com/twitter/ambrose',
 'tah35@o405-u05.case.edu':
-    'https://github.com/twitter/twitter-cldr-js',
+    'https://github.com/twitter/hadoop-lzo',
 'tah35@o405-u06.case.edu':
-    'https://github.com/twitter/twemproxy',
+    'https://github.com/twitter/twemcache',
 'tah35@o405-u07.case.edu':
-    'https://github.com/twitter/twitter-text-objc',
+    'https://github.com/twitter/snowflake',
 'tah35@o405-u08.case.edu':
-    'https://github.com/twitter/twitter-text-java',
+    'https://github.com/twitter/scrooge',
 'tah35@o405-u10.case.edu':
-    'https://github.com/twitter/pycascading',
+    'https://github.com/twitter/hogan.js',
 'tah35@o405-u11.case.edu':
-    'https://github.com/twitter/twitter-text-conformance',
+    'https://github.com/twitter/elephant-twin-lzo',
 'tah35@o405-u12.case.edu':
-    'https://github.com/twitter/twitter-text-js',
+    'https://github.com/twitter/elephant-twin',
 'tah35@o405-u13.case.edu':
-    'https://github.com/twitter/iago',
+    'https://github.com/twitter/cassie',
 'tah35@o405-u14.case.edu':
-    'https://github.com/twitter/recess',
+    'https://github.com/twitter/twitter4j',
 }
 
 def assert_local_dir_exists(path, nocreate=False):
