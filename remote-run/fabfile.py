@@ -240,6 +240,7 @@ def sequence():
   api.get(output, os.path.join(localhostout, outputname))
 
 def merges():
-  with api.prefix(_load_env_prefix()):
-    run('futz -r %s merges' % SUBJECT_DIR)
+  with settings(warn_only=True):
+    with api.prefix(_load_env_prefix()):
+      run('futz -r %s merges' % SUBJECT_DIR)
 
