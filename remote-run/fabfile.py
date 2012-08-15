@@ -101,31 +101,58 @@ DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 #    'https://github.com/twitter/twitter4j',
 #}
 
+#subjects = {
+#'tah35@o405-u01.case.edu':
+#    'https://github.com/twitter/bootstrap-server',
+#'tah35@o405-u02.case.edu':
+#    'https://github.com/twitter/twui',
+#'tah35@o405-u04.case.edu':
+#    'https://github.com/twitter/sbt-scrooge',
+#'tah35@o405-u05.case.edu':
+#    'https://github.com/twitter/naggati2',
+#'tah35@o405-u06.case.edu':
+#    'https://github.com/twitter/sbt-package-dist',
+#'tah35@o405-u07.case.edu':
+#    'https://github.com/twitter/gizzmo',
+#'tah35@o405-u08.case.edu':
+#    'https://github.com/twitter/flockdb',
+#'tah35@o405-u10.case.edu':
+#    'https://github.com/twitter/mahout',
+#'tah35@o405-u11.case.edu':
+#    'https://github.com/twitter/scala-bootstrapper',
+#'tah35@o405-u12.case.edu':
+#    'https://github.com/twitter/innovators-patent-agreement',
+#'tah35@o405-u13.case.edu':
+#    'https://github.com/twitter/twemperf',
+#'tah35@o405-u14.case.edu':
+#    'https://github.com/twitter/gizzard',
+#}
+
 subjects = {
 'tah35@o405-u01.case.edu':
-    'https://github.com/twitter/bootstrap-server',
+    'https://github.com/twitter/ospriet',
 'tah35@o405-u02.case.edu':
-    'https://github.com/twitter/twui',
+    'https://github.com/twitter/querulous',
 'tah35@o405-u04.case.edu':
-    'https://github.com/twitter/sbt-scrooge',
+    'https://github.com/twitter/kestrel-client',
 'tah35@o405-u05.case.edu':
-    'https://github.com/twitter/naggati2',
+    'https://github.com/twitter/standard-project',
 'tah35@o405-u06.case.edu':
-    'https://github.com/twitter/sbt-package-dist',
+    'https://github.com/twitter/scrooge-runtime',
 'tah35@o405-u07.case.edu':
-    'https://github.com/twitter/gizzmo',
+    'https://github.com/twitter/jvmgcprof',
 'tah35@o405-u08.case.edu':
-    'https://github.com/twitter/flockdb',
+    'https://github.com/twitter/cloudhopper-smpp',
 'tah35@o405-u10.case.edu':
-    'https://github.com/twitter/mahout',
+    'https://github.com/twitter/cloudhopper-commons-charset',
 'tah35@o405-u11.case.edu':
-    'https://github.com/twitter/scala-bootstrapper',
+    'https://github.com/twitter/scala-json',
 'tah35@o405-u12.case.edu':
-    'https://github.com/twitter/innovators-patent-agreement',
+    'https://github.com/twitter/twitterActors',
 'tah35@o405-u13.case.edu':
-    'https://github.com/twitter/twemperf',
+    'https://github.com/twitter/sbt-thrift',
 'tah35@o405-u14.case.edu':
-    'https://github.com/twitter/gizzard',
+    'https://github.com/twitter/thrift_client',
 }
 
 def assert_local_dir_exists(path, nocreate=False):
