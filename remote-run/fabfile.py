@@ -33,19 +33,45 @@ DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 #'tah35@o405-u13.case.edu':'https://github.com/antirez/redis.git',
 #'tah35@o405-u14.case.edu':'https://github.com/mongodb/mongo.git',
 #}
+#subjects = {
+#'tah35@o405-u01.case.edu':'https://github.com/twitter/bootstrap.git',
+#'tah35@o405-u02.case.edu':'https://github.com/twitter/scalding.git',
+#'tah35@o405-u04.case.edu':'https://github.com/twitter/scala_school.git',
+#'tah35@o405-u05.case.edu':'https://github.com/twitter/util.git',
+#'tah35@o405-u06.case.edu':'https://github.com/twitter/cassovary.git',
+#'tah35@o405-u07.case.edu':'https://github.com/twitter/zipkin.git',
+#'tah35@o405-u08.case.edu':'https://github.com/twitter/cassandra.git',
+#'tah35@o405-u10.case.edu':'https://github.com/twitter/commons.git',
+#'tah35@o405-u11.case.edu':'https://github.com/twitter/finagle.git',
+#'tah35@o405-u12.case.edu':'https://github.com/twitter/activerecord-reputation-system.git',
+#'tah35@o405-u13.case.edu':'https://github.com/twitter/twitter-cldr-rb.git',
+#'tah35@o405-u14.case.edu':'https://github.com/twitter/twitter-text-rb.git',
+#}
 subjects = {
-'tah35@o405-u01.case.edu':'https://github.com/twitter/bootstrap.git',
-'tah35@o405-u02.case.edu':'https://github.com/twitter/scalding.git',
-'tah35@o405-u04.case.edu':'https://github.com/twitter/scala_school.git',
-'tah35@o405-u05.case.edu':'https://github.com/twitter/util.git',
-'tah35@o405-u06.case.edu':'https://github.com/twitter/cassovary.git',
-'tah35@o405-u07.case.edu':'https://github.com/twitter/zipkin.git',
-'tah35@o405-u08.case.edu':'https://github.com/twitter/cassandra.git',
-'tah35@o405-u10.case.edu':'https://github.com/twitter/commons.git',
-'tah35@o405-u11.case.edu':'https://github.com/twitter/finagle.git',
-'tah35@o405-u12.case.edu':'https://github.com/twitter/activerecord-reputation-system.git',
-'tah35@o405-u13.case.edu':'https://github.com/twitter/twitter-cldr-rb.git',
-'tah35@o405-u14.case.edu':'https://github.com/twitter/twitter-text-rb.git',
+'tah35@o405-u01.case.edu':
+    'https://github.com/twitter/algebird',
+'tah35@o405-u02.case.edu':
+    'https://github.com/twitter/hdfs-du',
+'tah35@o405-u04.case.edu':
+    'https://github.com/twitter/ostrich',
+'tah35@o405-u05.case.edu':
+    'https://github.com/twitter/twitter-cldr-js',
+'tah35@o405-u06.case.edu':
+    'https://github.com/twitter/twemproxy',
+'tah35@o405-u07.case.edu':
+    'https://github.com/twitter/twitter-text-objc',
+'tah35@o405-u08.case.edu':
+    'https://github.com/twitter/twitter-text-java',
+'tah35@o405-u10.case.edu':
+    'https://github.com/twitter/pycascading',
+'tah35@o405-u11.case.edu':
+    'https://github.com/twitter/twitter-text-conformance',
+'tah35@o405-u12.case.edu':
+    'https://github.com/twitter/twitter-text-js',
+'tah35@o405-u13.case.edu':
+    'https://github.com/twitter/iago',
+'tah35@o405-u14.case.edu':
+    'https://github.com/twitter/recess',
 }
 
 def assert_local_dir_exists(path, nocreate=False):
