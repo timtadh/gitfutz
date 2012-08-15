@@ -128,31 +128,58 @@ DEPS_DIR = os.path.join(HOME_DIR, 'deps')
 #    'https://github.com/twitter/gizzard',
 #}
 
+#subjects = {
+#'tah35@o405-u01.case.edu':
+#    'https://github.com/twitter/ospriet',
+#'tah35@o405-u02.case.edu':
+#    'https://github.com/twitter/querulous',
+#'tah35@o405-u04.case.edu':
+#    'https://github.com/twitter/kestrel-client',
+#'tah35@o405-u05.case.edu':
+#    'https://github.com/twitter/standard-project',
+#'tah35@o405-u06.case.edu':
+#    'https://github.com/twitter/scrooge-runtime',
+#'tah35@o405-u07.case.edu':
+#    'https://github.com/twitter/jvmgcprof',
+#'tah35@o405-u08.case.edu':
+#    'https://github.com/twitter/cloudhopper-smpp',
+#'tah35@o405-u10.case.edu':
+#    'https://github.com/twitter/cloudhopper-commons-charset',
+#'tah35@o405-u11.case.edu':
+#    'https://github.com/twitter/scala-json',
+#'tah35@o405-u12.case.edu':
+#    'https://github.com/twitter/twitterActors',
+#'tah35@o405-u13.case.edu':
+#    'https://github.com/twitter/sbt-thrift',
+#'tah35@o405-u14.case.edu':
+#    'https://github.com/twitter/thrift_client',
+#}
+
 subjects = {
 'tah35@o405-u01.case.edu':
-    'https://github.com/twitter/ospriet',
+    'https://github.com/twitter/streamyj',
 'tah35@o405-u02.case.edu':
-    'https://github.com/twitter/querulous',
+    'https://github.com/twitter/scala-zookeeper-client',
 'tah35@o405-u04.case.edu':
-    'https://github.com/twitter/kestrel-client',
+    'https://github.com/twitter/joauth',
 'tah35@o405-u05.case.edu':
-    'https://github.com/twitter/standard-project',
+    'https://github.com/twitter/haplocheirus',
 'tah35@o405-u06.case.edu':
-    'https://github.com/twitter/scrooge-runtime',
+    'https://github.com/twitter/cloudhopper-commons-gsm',
 'tah35@o405-u07.case.edu':
-    'https://github.com/twitter/jvmgcprof',
+    'https://github.com/twitter/cloudhopper-commons-util',
 'tah35@o405-u08.case.edu':
-    'https://github.com/twitter/cloudhopper-smpp',
+    'https://github.com/twitter/grabby-hands',
 'tah35@o405-u10.case.edu':
-    'https://github.com/twitter/cloudhopper-commons-charset',
+    'https://github.com/twitter/webrat',
 'tah35@o405-u11.case.edu':
-    'https://github.com/twitter/scala-json',
+    'https://github.com/twitter/mustache.js',
 'tah35@o405-u12.case.edu':
-    'https://github.com/twitter/twitterActors',
+    'https://github.com/twitter/rubyenterpriseedition187-248',
 'tah35@o405-u13.case.edu':
-    'https://github.com/twitter/sbt-thrift',
+    'https://github.com/twitter/flockdb-client',
 'tah35@o405-u14.case.edu':
-    'https://github.com/twitter/thrift_client',
+    'https://github.com/twitter/twitcher',
 }
 
 def assert_local_dir_exists(path, nocreate=False):
