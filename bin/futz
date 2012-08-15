@@ -397,10 +397,10 @@ def qsequence(repo):
     'os':os,
     'sys':sys,
     'log':log,
-    'excluded_exts': {
+    'excluded_exts': set([
       '.pdf', '.png', '.out', '.exe', '.graffle', '.odt', '.gv', '.doc',
       '.jpg', '.tiff',
-    },
+    ]),
     'excluded_files':{
       'src/retrie/testdictionary/dictionary.go',
       'src/structures/b+bot',
