@@ -13,3 +13,6 @@ cdeps
 # png files
 *.png
 
+parsetab.py
+parser.out
+
