@@ -1,0 +1,1 @@
+time python job.py -r hadoop --conf-path mrjob.conf --job-conf mapred.map.tasks=17,mapred.reduce.tasks=7
