@@ -427,7 +427,7 @@ def main(args):
 
   short_opts =  'hvr:'
   long_opts = [
-    'help', 'version', 'repo='
+    'help', 'version', 'repo=', 'hello',
   ]
 
   try:
@@ -443,6 +443,8 @@ def main(args):
       io.usage()
     elif opt in ('-v', '--version'):
       version()
+    elif opt in ('--hello',):
+      return
     elif opt in ('-r', '--repo'):
       repo_path = io.assert_dir_exists(arg, nocreate=True)
       repo = pygit2.Repository(repo_path)
