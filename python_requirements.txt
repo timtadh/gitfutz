@@ -12,3 +12,4 @@ numpy
 scikit-learn
 scipy
 matplotlib
+nose
