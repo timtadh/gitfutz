@@ -5,16 +5,19 @@
 #For licensing see the LICENSE file in the top level directory.
 
 import sys, os, difflib, random
+import logging
+log = logging.getLogger("job")
 
 import pygit2
 from mrjob.job import MRJob
-from mrjob.util import bash_wrap
+from mrjob.util import bash_wrap, log_to_stream
 from editdist import distance as strdist
 from sklearn import cluster
 
 from gitfutz.astutils import tools
 
 SUBJECTS_DIR = '/home/tah35/subjects'
+log_to_stream("job", debug=True)
 
 def quick_strdist(a,b):
     return difflib.SequenceMatcher(None, a, b).real_quick_ratio()
@@ -45,6 +48,7 @@ class Sequence(MRJob):
           self.mr(
             reducer=self.cluster_authors),
         ]
+
     def configure_options(self):
         super(Sequence, self).configure_options()
         self.add_passthrough_option('--sample', default=False,
@@ -54,25 +58,30 @@ class Sequence(MRJob):
             default=.4, help='What percentage of commits should be sampled?')
 
     def commits(self, _, url):
+        self.increment_counter('job', 'commits calls', 1)
         path = os.path.join(SUBJECTS_DIR, 
                             os.path.basename(url).replace('.git', ''))
         repo = pygit2.Repository(path)
         head = repo.lookup_reference('HEAD').resolve()
         for commit in repo.walk(head.oid, pygit2.GIT_SORT_REVERSE):
             if not self.options.sample: 
+                self.increment_counter('job', 'commits to process', 1)
                 yield path, commit.hex
             else:
                 if random.random() < self.options.sample_threshold:
+                    self.increment_counter('job', 'commits to process', 1)
                     yield path, commit.hex
                 else:
                     print 'skipped', path, commit.hex
 
     def commit_stats(self, path, chex):
+        self.increment_counter('job', 'commit_stats calls', 1)
         repo = pygit2.Repository(path)
         try:
             commit = repo[chex.decode('hex')]
         except:
             return
+        log.debug(chex)
         merge = 1 if len(commit.parents) > 1 else 0
         yield (path, commit.author.email), (1, merge, 0.0)
         files1 = dict()
@@ -94,9 +103,12 @@ class Sequence(MRJob):
                     f2 = f1.decode('utf8').encode('utf8')
                 except UnicodeDecodeError:
                     continue
+                log.debug(' '*4 + key)
                 yield (path, commit.author.email), (0, 0, quick_strdist(f1,f2))
+        self.increment_counter('job', 'commits processed', 1)
 
     def sum_stats(self, pa, cms):
+        self.increment_counter('job', 'sum_stats calls', 1)
         path, author = pa
         t_commits = 0.0
         t_merges = 0.0
@@ -109,10 +121,12 @@ class Sequence(MRJob):
             float(t_sdist))
 
     def normalize_stats_mapper(self, pa, cms):
+        self.increment_counter('job', 'normalize_stats_mapper calls', 1)
         path, author = pa
         yield path, (author, cms[0], cms[1], cms[2])
 
     def normalize_stats_reducer(self, path, acms):
+        self.increment_counter('job', 'normalize_stats_reducer calls', 1)
         def div(q, d): return q/d if d != 0.0 else 0.0
         t_commits = 0.0
         t_merges = 0.0
@@ -130,6 +144,7 @@ class Sequence(MRJob):
             ))
     
     def cluster_authors(self, path, acms):
+        self.increment_counter('job', 'cluster_authors calls', 1)
         acms = tuple(i for i in acms)
         try:
             est = cluster.KMeans(k=min(max(len(acms)/2, 2), 4))
