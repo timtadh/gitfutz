@@ -7,9 +7,10 @@
 -e git+https://github.com/timtadh/pyflwor.git#egg=pyflwor
 -e git+https://github.com/Yelp/mrjob.git#egg=mrjob
 -e git+https://github.com/timtadh/HBasta#egg=HBasta
+-e git+https://github.com/timtadh/optutils.git#egg=optutils
 ply
 numpy
-scikit-learn
 scipy
 matplotlib
+scikit-learn
 nose
