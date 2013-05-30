@@ -13,7 +13,7 @@ from pygram import Profile
 from gitfutz.io import log, output
 
 def python(text):
-  
+
   def construct(pynode):
     name = pynode.__class__.__name__
     node = Node(name)
@@ -36,7 +36,10 @@ def python(text):
         attr_node.addkid(Node(str(attrs)))
     return node
 
-  pyast = ast.parse(text)
+  try:
+    pyast = ast.parse(text)
+  except SyntaxError:
+    return None, None
   newast = construct(pyast)
   return newast, Profile(newast)
 
