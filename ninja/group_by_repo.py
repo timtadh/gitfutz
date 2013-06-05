@@ -20,14 +20,17 @@ def parse_json(fin):
                 l = line[split:].encode('utf8')
                 return False, None, (r, l)
             log(e)
-            #log('skipped', "'%s'" % line)
+            print 'skipped', "'%s'" % line
             if e.message == 'No JSON object could be decoded':
                 return False, None, None
-            raise
+            #raise
+            return False, None, None
         except Exception, e:
             log(e)
-            log('skipped', line)
-            raise
+            #log('skipped', line)
+            print 'skipped', "'%s'" % line
+            #raise
+            return False, None, None
 
     def proc(lines):
         for line in lines:
@@ -45,6 +48,8 @@ def parse_json(fin):
         yield data
 
 def get_repo(data):
+    #print data
+    #log(data)
     repo = data.get('repo', None)
     if repo is None:
         repo = data.get('repository', dict())
@@ -54,7 +59,11 @@ def get_repo(data):
         #print data, repo, data.get('type')
         if repo is None and data.get('type') == 'CreateEvent':
             obj = data.get('payload', dict()).get('object')
-            user_name = data.get('actor', dict()).get('login', '')
+            actor = data.get('actor', dict())
+            if isinstance(actor, dict):
+                user_name = data.get('actor', dict()).get('login', '')
+            else:
+                user_name = actor
             #print obj
             if obj in ('repository', 'branch', 'tag'):
                 #print data
@@ -80,12 +89,12 @@ class Job(MRJob):
             if line['type'] == 'FollowEvent': continue
             if line['type'] == 'DownloadEvent': continue
             if line['type'] == 'DeleteEvent': continue
-            repo = get_repo(line)
-            if repo is None: raise Exception
             if line['type'] != 'PullRequestEvent': continue
-            if repo == '/':
-                print get_repo(line), line['type'], line['payload']
-                raise Exception
+            repo = get_repo(line)
+            if repo is None:
+                print 'skipped', repo, line
+            elif repo == '/':
+                print 'skipped', repo, line
             else:
                 yield repo, line
 
