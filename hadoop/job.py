@@ -4,7 +4,7 @@
 #Email: tim.tadh@hackthology.com
 #For licensing see the LICENSE file in the top level directory.
 
-import sys, os, difflib, random
+import sys, os, difflib, random, re
 import logging
 log = logging.getLogger("job")
 
@@ -59,8 +59,8 @@ class Sequence(MRJob):
 
     def commits(self, _, url):
         self.increment_counter('job', 'commits calls', 1)
-        path = os.path.join(SUBJECTS_DIR, 
-                            os.path.basename(url).replace('.git', ''))
+        name = re.sub(r'\.git$', r'', os.path.basename(url).strip())
+        path = os.path.join(SUBJECTS_DIR, name)
         repo = pygit2.Repository(path)
         head = repo.lookup_reference('HEAD').resolve()
         for commit in repo.walk(head.oid, pygit2.GIT_SORT_REVERSE):
