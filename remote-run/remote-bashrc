@@ -1,3 +1,0 @@
-export PATH=/home/tah35/deps/bin:$PATH
-export PYTHONPATH=/home/tah35/deps/lib/python:$PYTHONPATH
-

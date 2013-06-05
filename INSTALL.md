@@ -4,7 +4,7 @@ Installing
 This isn't so much an install document for `gitfutz` as an install documents for
 all the dependencies. `gitfutz` is not an "installable" thing yet so this is to
 get you setup for hacking on it. The main dependency is `pygit2`. Unfortunately,
-`pygit2` requires a c library `libgit2` to build. 
+`pygit2` requires a c library `libgit2` to build.
 
 I use [swork](https://github.com/timtadh/swork) to manage my shell enviroment. I
 recommend you do the same when hacking (or at least installing) this project. It
@@ -32,7 +32,7 @@ add the project to swork
 Install C Dependencies
 ======================
 
-See the `c_requirements.md` document. 
+See the `c_requirements.md` document.
 
 
 Install Python Dependencies

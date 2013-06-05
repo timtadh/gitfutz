@@ -21,12 +21,12 @@ def collect_python_files(files, tree, parents):
   for entry in tree:
     name = entry.name.encode('utf8')
     eobj = entry.to_object()
-    if isinstance(eobj, pygit2.Tree): 
+    if isinstance(eobj, pygit2.Tree):
       collect_python_files(files, eobj, parents+[name])
     else:
       data = eobj.data.replace('\r', '')
       line = data.split('\n', 1)[0].strip()
-      if (os.path.splitext(name)[1] == '.py' or 
+      if (os.path.splitext(name)[1] == '.py' or
           ('python' in line and line[0] == '#')):
         files[os.path.join(*(parents+[name]))] = data
 
@@ -34,7 +34,7 @@ def collect_files(files, tree, parents):
   for entry in tree:
     name = entry.name.encode('utf8')
     eobj = entry.to_object()
-    if isinstance(eobj, pygit2.Tree): 
+    if isinstance(eobj, pygit2.Tree):
       collect_files(files, eobj, parents+[name])
     else:
       data = eobj.data.replace('\r', '')

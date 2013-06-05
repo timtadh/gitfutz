@@ -8,21 +8,21 @@ I assume you are using [swork](https://github.com/timtadh/swork) if you are not 
 libgit2
 =======
 
-##### url: 
+##### url:
 https://github.com/libgit2/libgit2
 
-##### what: 
+##### what:
 the git library pygit2 uses
 
-##### dependencies: 
+##### dependencies:
 cmake
 
 ##### install:
 
 0. cd to the checkout root of the gitfutz
 1.  `$ sw add gitfutz` # Note: accept the premade files
-                       # if you have already done this simply 
-                       # $ sw start -c gitfutz 
+                       # if you have already done this simply
+                       # $ sw start -c gitfutz
                        # instead.
 2.  install cmake
       - if on ubuntu, `$ sudo apt-get install cmake`

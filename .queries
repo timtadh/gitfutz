@@ -32,6 +32,54 @@ commits=for
       return diff_trees(commit.tree, parent.tree)
   }
 ------------
+mine_calls=for 
+  commit in repo.walk(
+            repo.lookup_reference('HEAD').resolve().oid, 
+            pygit2.GIT_SORT_TOPOLOGICAL) 
+  let allowed_exts = set(['.py', ''])
+  let collect_calls = function(node, i) {
+    for kid in node.children
+    return flatten if kid.label == 'Call'
+                   then tuple([kid] + list(collect_calls(kid, i+1)))
+                   else collect_calls(kid, i+1)
+  }
+  let collect_python = function(tree, parents) {
+    for entry in tree
+      let eobj = if entry.oid in repo then entry.to_object() else None
+      let name = entry.name.encode("utf8") 
+      let ext  = os.path.splitext(name)[1]
+      let path = os.path.join(parents, name)
+      let file = if hasattr(eobj, 'data') and ext in allowed_exts
+                 then eobj.data 
+                 else None
+      let line = if file != None 
+                 then file.split('\n')[0]
+                 else None
+      let line = if line != None and len(line) > 2 then line else None
+      where eobj != None and 
+            (isinstance(eobj, pygit2.Tree) or 
+              ext == '.py' or 
+              (file != None and line.__getslice__(0,2) == '#!' and "python" in line)
+            )
+      return flatten if isinstance(eobj, pygit2.Tree)
+                     then collect_python(eobj, path)
+                     else {
+                       'path':path,
+                       'file':file,
+                       'ast': gitfutz.astutils.genast.python(file)[0]
+                     }
+  }
+  let commit_id = commit.hex
+  let author = commit.author.name.encode('utf8')
+  let pyfiles = collect_python(commit.tree, '')
+  let calls = {
+    for file in pyfiles
+    let _ = log(file["path"])
+    where file["ast"] != None
+    return "path":file["path"], "calls":collect_calls(file["ast"], 1)
+  }
+  return commit_id, author, calls
+------------
 sequence=for
   commit in repo.walk(
             repo.lookup_reference('HEAD').resolve().oid,
@@ -78,7 +126,7 @@ sequence=for
       return d["dist"]
     }
   })
-reduce "dist":dist, "commits":1, "merges":merge
+collect "dist":dist, "commits":1, "merges":merge
   as author with function(p, n) {
     if p == None
     then n

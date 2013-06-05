@@ -1,0 +1,1 @@
+time python job.py -r hadoop --conf-path mrjob.conf --jobconf=dfs.block.size=16384 --jobconf=mapred.reduce.tasks=3
