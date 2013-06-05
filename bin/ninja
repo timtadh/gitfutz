@@ -6,10 +6,11 @@
 
 
 import os, sys, json
+import re
 
 import optutils
 from optutils import output, log, error_codes, add_code
-
+from mrjob.job import MRJob
 
 __version__ = 'git master'
 
@@ -79,6 +80,19 @@ def get_repo(data):
     else:
         return repo.get('name')
 
+WORD_RE = re.compile(r"[\w']+")
+class MRWordFreqCount(MRJob):
+
+    def mapper(self, _, line):
+        for word in WORD_RE.findall(line):
+            yield word.lower(), 1
+
+    def combiner(self, word, counts):
+        yield word, sum(counts)
+
+    def reducer(self, word, counts):
+        yield word, sum(counts)
+
 @optutils.main(
     'usage: ninja <command>',
     '''
@@ -134,6 +148,34 @@ def main(argv, util, parser):
                     raise Exception
                 else:
                     print repo#, line['type'], line['payload']
+    @util.command(
+        'usage: hadoop [<mrjob args>]',
+        '''
+        Example:
+
+            gzip -cd data/2011-03.json.gz | ninja parse
+
+        Options
+            -h, help                      print this message
+            -f, file=<file>               an input file
+        ''',
+        'hf:',
+        ['help','file='],
+    )
+    def hadoop(argv, util, parser, setting):
+
+        opts, args = parser(argv)
+        for opt, arg in opts:
+            if opt in ('-h', '--help',):
+                util.usage()
+
+        log(args)
+        job = MRWordFreqCount(args=args)
+        with job.make_runner() as runner:
+            runner.run()
+            for line in runner.stream_output():
+                key, value = job.parse_output_line(line)
+                print key, value
 
 
     opts, args = parser(argv)
