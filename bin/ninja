@@ -6,11 +6,15 @@
 
 
 import os, sys, json
+import logging
 import re
+logging.basicConfig()
 
 import optutils
 from optutils import output, log, error_codes, add_code
-from mrjob.job import MRJob
+
+from ninja import counts
+from ninja import group_by_repo
 
 __version__ = 'git master'
 
@@ -20,78 +24,6 @@ def version():
     '''Print version and exits'''
     log('version :', __version__)
     sys.exit(error_codes['version'])
-
-def parse_json(fin):
-    def decode(line):
-        try:
-            return True, json.loads(line), None
-        except ValueError, e:
-            if e.message.startswith('Extra data:'):
-                log('doubled lines')
-                split =  int(e.message.split('(', 1)[1].
-                                       split('-', 1)[0].
-                                       replace('char ', ''))
-                r = line[:split].encode('utf8')
-                l = line[split:].encode('utf8')
-                return False, None, (r, l)
-            log(e)
-            log('skipped', "'%s'" % line)
-            if e.message == 'No JSON object could be decoded':
-                return False, None, None
-            raise
-        except Exception, e:
-            log(e)
-            log('skipped', line)
-            raise
-
-    def proc(lines):
-        for line in lines:
-            if not line: continue
-            line = line.decode('utf8', 'ignore')
-            ok, data, retry = decode(line)
-            if ok:
-                yield data
-            elif retry:
-                for data in proc(retry):
-                    yield data
-
-    for i, data in enumerate(proc(fin)):
-        if i % 10000 == 0: log(i, data)
-        yield data
-
-def get_repo(data):
-    repo = data.get('repo', None)
-    if repo is None:
-        repo = data.get('repository', dict())
-    if repo.get('name', '/') == '/':
-        #print data.get('payload'), data.get('type')
-        repo = data.get('payload', dict()).get('repo')
-        #print data, repo, data.get('type')
-        if repo is None and data.get('type') == 'CreateEvent':
-            obj = data.get('payload', dict()).get('object')
-            user_name = data.get('actor', dict()).get('login', '')
-            #print obj
-            if obj in ('repository', 'branch', 'tag'):
-                #print data
-                repo_name = data.get('payload', dict()).get('name', '')
-                return '/'.join((repo_name, user_name))
-            return None
-        return repo
-    else:
-        return repo.get('name')
-
-WORD_RE = re.compile(r"[\w']+")
-class MRWordFreqCount(MRJob):
-
-    def mapper(self, _, line):
-        for word in WORD_RE.findall(line):
-            yield word.lower(), 1
-
-    def combiner(self, word, counts):
-        yield word, sum(counts)
-
-    def reducer(self, word, counts):
-        yield word, sum(counts)
 
 @optutils.main(
     'usage: ninja <command>',
@@ -135,19 +67,19 @@ def main(argv, util, parser):
             path = args[0]
 
         with util.getfile(path, 'r', sys.stdin) as f:
-            for line in parse_json(f):
+            for line in group_by_repo.parse_json(f):
                 if line['type'] == 'GistEvent': continue
                 if line['type'] == 'FollowEvent': continue
                 if line['type'] == 'DownloadEvent': continue
                 if line['type'] == 'DeleteEvent': continue
-                repo = get_repo(line)
+                repo = group_by_repo.get_repo(line)
                 if repo is None: raise Exception
                 if line['type'] != 'PullRequestEvent': continue
                 if repo == '/':
-                    print get_repo(line), line['type'], line['payload']
+                    print group_by_repo.get_repo(line), line['type'], line['payload']
                     raise Exception
                 else:
-                    print repo#, line['type'], line['payload']
+                    print repo
     @util.command(
         'usage: hadoop [<mrjob args>]',
         '''
@@ -157,25 +89,24 @@ def main(argv, util, parser):
 
         Options
             -h, help                      print this message
-            -f, file=<file>               an input file
         ''',
-        'hf:',
-        ['help','file='],
+        'h',
+        ['help',],
     )
     def hadoop(argv, util, parser, setting):
 
-        opts, args = parser(argv)
-        for opt, arg in opts:
-            if opt in ('-h', '--help',):
-                util.usage()
+        #opts, args = parser(argv)
+        #for opt, arg in opts:
+            #if opt in ('-h', '--help',):
+                #util.usage()
 
-        log(args)
-        job = MRWordFreqCount(args=args)
+        log(argv)
+        job = group_by_repo.Job(args=argv)
         with job.make_runner() as runner:
             runner.run()
             for line in runner.stream_output():
                 key, value = job.parse_output_line(line)
-                print key, value
+                print job.format_output(key, value)
 
 
     opts, args = parser(argv)
